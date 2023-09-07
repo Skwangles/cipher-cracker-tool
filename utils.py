@@ -12,9 +12,9 @@ def index_of_coincidence(input):
             letters[i] += 1
         else:
             letters[i] = 1
-    sigma_f = 0
 
     # Calculate using algorithm from class
+    sigma_f = 0
     for f in letters.items():
         sigma_f += f*(f - 1)
     big_n = len(input)
