@@ -1,4 +1,4 @@
-def encrypt(text, key):
+def encrypt(text, key):                 
     """Encrypts the text using the key"""
     return "Not implemented"
 
