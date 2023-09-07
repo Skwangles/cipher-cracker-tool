@@ -1,5 +1,10 @@
 # JAMB-compx502
 
+## How to use
+
+Current system usage:  
+`python main.py <rsa|caesar|simple> <crack|encrypt|decrypt> <cypertext>  <key(if applicable)>`
+
 ## Git etiquette
 
 Feature branches, then merge into main - please do not directly commit main if you can avoid it.
@@ -11,7 +16,7 @@ _May change after seeing lectures_
 - RSA
 - Simple Substitution
 - Caesar Cipher
-- 4th is undecided
+- _4th is undecided_
 
 ## Assignment Description
 
