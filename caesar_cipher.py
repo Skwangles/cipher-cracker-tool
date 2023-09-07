@@ -1,8 +1,8 @@
 def encrypt(text, key):
-    pass
+    return "Not implemented"
 
 def decrypt(cypher_text, key):
-    pass
+    return "Not implemented"
 
 def crack(cypher_text):
-    pass
+    return "Not implemented"
