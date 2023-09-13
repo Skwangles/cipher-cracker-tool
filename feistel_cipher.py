@@ -5,6 +5,9 @@ from utils import *
 
 def encrypt(text, keys="", keylength=3, rounds=16):
     """Encrypts the text using the key"""
+    keylength = int(keylength)
+    rounds = int(rounds)
+    keys = str(keys)
     
     if len(text) % 2 != 0:
         print("Text is not a multiple of 2, padding with 1x# at the end")
@@ -25,6 +28,9 @@ def encrypt(text, keys="", keylength=3, rounds=16):
 
 def decrypt(cypher_text, keys="", keylength=3, rounds=16):
     """Decrypts the cypher text using the key - cypher text must be a binary string"""
+    keylength = int(keylength)
+    rounds = int(rounds)
+    keys = str(keys)
     
     if re.match("^[01]+$", cypher_text) is None:
         return "Cypher text is not a binary string"
