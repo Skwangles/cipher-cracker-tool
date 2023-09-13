@@ -82,7 +82,7 @@ def f_func(text, key):
     return xor_string_and_key(text, string_to_binary(key))
 
 if __name__ == "__main__":
-    print("Feistal cipher")
+    print("Feistel cipher")
     print("--------------")
     
     print("Encrypting 'Hello World' with key 'key' and 16 rounds")
