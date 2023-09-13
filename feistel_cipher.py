@@ -61,9 +61,11 @@ def feistel_cipher(L, R, keyspace, rounds=16):
         key = keyspace[i % len(keyspace)]
         pre_xor_Ri = f_func(Ri_less_1, key)
 
+        # XOR the output of the f function with the left half
         Ri = xor_string_and_key(Li_less_1, pre_xor_Ri)
         Li = Ri_less_1
 
+        # Pass output to next round
         Li_less_1 = Li
         Ri_less_1 = Ri
 
@@ -71,21 +73,15 @@ def feistel_cipher(L, R, keyspace, rounds=16):
     return str(Ri_less_1) + str(Li_less_1)
 
 
-def random_key(length=3):
-    """Generates a random key of the given length"""
-    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
-    return "".join(random.choice(alphabet.ascii_lowercase) for i in range(length))
+def f_func(text, key):
+    """The f function used in the Feistal cipher"""
+    # Hash the text and key - doesn't need to be invertible
+    return xor_string_and_key(text, string_to_binary(key))
 
 
 def crack(cypher_text):
     """Cracks the cypher text, returning the key"""    
     return "Sorry bucko, you're on your own - this would take way too long to crack during this presentation"
-
-
-def f_func(text, key):
-    """The f function used in the Feistal cipher"""
-    # Hash the text and key - doesn't need to be invertible
-    return xor_string_and_key(text, string_to_binary(key))
 
 if __name__ == "__main__":
     print("Feistel cipher")

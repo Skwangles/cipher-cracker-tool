@@ -42,3 +42,8 @@ def binary_to_string(binary):
     # Adapted from https://www.geeksforgeeks.org/convert-binary-to-string-using-python/
     # Split the string into 8 bit chunks, use int(<num>, 2) to get base 10 version of binary, then convert to ascii value    
     return "".join(chr(int(binary[i:i+8],2)) for i in range(0, len(binary), 8))
+
+def random_key(length=3):
+    """Generates a random key of the given length"""
+    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
+    return "".join(random.choice(alphabet.ascii_lowercase) for i in range(length))
