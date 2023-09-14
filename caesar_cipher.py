@@ -42,7 +42,7 @@ def crack(cipher_text):
     if any(char.isalpha() for char in cipher_text): setLength = 26
     else: setLength = 10
 
-    #try all possible shifts (1 to 25)
+    #try all possible shifts
     for key in range(1,setLength):  
             decrypted_text = decrypt(cipher_text, key)
             shifts += (f"key {key}: '{decrypted_text.encode('utf-8').decode('utf-8', 'ignore')}'") + "\n"
