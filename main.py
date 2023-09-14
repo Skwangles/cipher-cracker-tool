@@ -12,9 +12,9 @@ def call_rsa(args):
         case "crack":
             print(rsa.crack(args[1]))
         case "decrypt":
-            print(rsa.decrypt(args[1], args[2]))
+            print(rsa.decrypt(*args[1:]))
         case "encrypt":
-            print(rsa.encrypt(args[1], args[2]))
+            print(rsa.encrypt(*args[1:]))
         case _:
             print("Unsupported operation:", args[0])
             print_help()
@@ -24,9 +24,9 @@ def call_caesar_cipher(args):
         case "crack":
             print(caesar_cipher.crack(args[1]))
         case "decrypt":
-            print(caesar_cipher.decrypt(args[1], args[2]))
+            print(caesar_cipher.decrypt(*args[1:]))
         case "encrypt":
-            print(caesar_cipher.encrypt(args[1], args[2]))
+            print(caesar_cipher.encrypt(*args[1:]))
         case _:
             print("Unsupported operation:", args[0])
             print_help()
@@ -36,9 +36,9 @@ def call_simple_substitution(args):
         case "crack":
             print(simple_substitution.crack(args[1]))
         case "decrypt":
-            print(simple_substitution.decrypt(args[1], args[2]))
+            print(simple_substitution.decrypt(*args[1:]))
         case "encrypt":
-            print(simple_substitution.encrypt(args[1], args[2]))
+            print(simple_substitution.encrypt(*args[1:]))
         case _:
             print("Unsupported operation:", args[0])
             print_help()
@@ -48,9 +48,9 @@ def call_fiestel_cipher(args):
         case "crack":
             print(feistel_cipher.crack(args[1]))
         case "decrypt":
-            print(feistel_cipher.decrypt(args[1], args[2], args[3], args[4]))
+            print(feistel_cipher.decrypt(*args[1:]))
         case "encrypt":
-            print(feistel_cipher.encrypt(args[1], args[2], args[3], args[4]))
+            print(feistel_cipher.encrypt(*args[1:]))
         case _:
             print("Unsupported operation:", args[0])
             print_help()
