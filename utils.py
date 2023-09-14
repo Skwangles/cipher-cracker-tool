@@ -1,3 +1,5 @@
+import random
+
 def index_of_coincidence(input):
     """Calculates the IoC"""
 
