@@ -10,18 +10,18 @@ def encrypt(text, key):
 
         if char.isalnum():
             #lowercase by default. also handle uppercase and digits 0-9
-            baseChar = 'a'
-            setLength = 26
+            base_char = 'a'
+            set_length = 26
 
             if char.isupper():
-                baseChar = 'A'
+                base_char = 'A'
 
             elif char.isdigit():
-                baseChar = '0'
-                setLength = 10
+                base_char = '0'
+                set_length = 10
         
-            offset = (ord(char) - ord(baseChar) + int(key)) % setLength
-            encrypted += chr(offset + ord(baseChar))
+            offset = (ord(char) - ord(base_char) + int(key)) % set_length
+            encrypted += chr(offset + ord(base_char))
         
         #leave non-alphanumeric characters unchanged
         else: encrypted += char
@@ -46,34 +46,34 @@ def crack(cipher_text):
     except LookupError:
         nltk.download('words')
         
-    englishWords = set(words.words())
+    english_words = set(words.words())
 
     #optimisation: if theres no alpha characters, only need to crack for digits
-    if any(char.isalpha() for char in cipher_text): setLength = 26
-    else: setLength = 10
+    if any(char.isalpha() for char in cipher_text): set_length = 26
+    else: set_length = 10
 
     #try all possible shifts
     results = []
-    for key in range(1,setLength):  
-        decryptedText = decrypt(cipher_text[1:-1], key)[1:-1] #test decrypt with that key. remove first and last apostrophes
-        decryptedWords = decryptedText.split()
+    for key in range(1,set_length):  
+        decrypted_text = decrypt(cipher_text[1:-1], key)[1:-1] #test decrypt with that key. remove first and last apostrophes
+        decrypted_words = decrypted_text.split()
 
         #count number of matching english words
-        englishWordCount = sum(1 for word in decryptedWords if word.lower() in englishWords)
-        results.append((key, decryptedText, englishWordCount))
+        english_word_count = sum(1 for word in decrypted_words if word.lower() in english_words)
+        results.append((key, decrypted_text, english_word_count))
 
     #sort by english word count descending
     results.sort(key=lambda result: result[2], reverse=True) 
 
     #make the results more readable for console output
-    readableResults = '\n'.join(f"key: {key}\t\ttext: '{text}'\t\tenglish words: {wordCount}" for key, text, wordCount in results)
-    return readableResults
+    readable_results = '\n'.join(f"key: {key}\t\ttext: '{text}'\t\tenglish words: {word_count}" for key, text, word_count in results)
+    return readable_results
 
 if __name__ == "__main__":
     print("Test encrypt")
     print(encrypt("abc", 1))
-    print(encrypt("abc", 2))
-    
+    print(encrypt("abc", 2))        
+
     print("Test decrypt")
     print(decrypt("bcd", 1))
     print(decrypt("cde", 2))
