@@ -10,7 +10,7 @@ Current system usage:
 `python main.py -h`
 
 Feistel Cipher example:  
-`python main.py --encrypt feistel -t test -k abc -l 3 -r 1`
+`python main.py --encrypt feistel -t test -k abc -r 10`
 
 Caesar Cipher example:  
 `python main.py --encrypt caesar -t test -s 3`
