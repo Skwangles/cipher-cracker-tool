@@ -2,8 +2,21 @@
 
 ## How to use
 
+_Note: You must be running atleast Python 3.10 - otherwise the 'match' statements will throw syntax errors_  
+Install libraries:  
+`pip install -r requirements.txt`
+
 Current system usage:  
-`python main.py <rsa|caesar|simple> <crack|encrypt|decrypt> <cypertext>  <key(if applicable)>`
+`python main.py -h`
+
+Feistel Cipher example:  
+`python main.py --encrypt feistel -t test -k abc -l 3 -r 1`
+
+Caesar Cipher example:  
+`python main.py --encrypt caesar -t test -s 3`
+
+Simple Cipher example:  
+`python main.py --encrypt simple -t -k abcdefghijklmnopqrstuv` (Key must be 26 letters)
 
 ## Git etiquette
 
