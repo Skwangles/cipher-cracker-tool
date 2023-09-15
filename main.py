@@ -53,9 +53,9 @@ def call_feistel(args):
         case "crack":
             print(cipher.crack(args.text))
         case "decrypt":
-            print(cipher.decrypt(args.text, args.keys, args.keylength, args.rounds))
+            print(cipher.decrypt(args.text, args.key, args.rounds))
         case "encrypt":
-            print(cipher.encrypt(args.text, args.keys, args.keylength, args.rounds))
+            print(cipher.encrypt(args.text, args.key, args.rounds))
         case _:
             print("Unsupported operation:", args.action)
     
@@ -95,8 +95,7 @@ simple_parser.add_argument("-k", "--key", default="abcdefghijklmnopqrstuvwxyz", 
 # feistel - text based key, rounds integer, and keylength integer
 feistel_parser = individual_cipher_arg_parsers.add_parser("feistel", help="Feistel Cipher")
 feistel_parser.add_argument("-t","-b","--text", "--binary", required=True, dest="text", help="Plaintext to encrypt/Binary to decrypt")
-feistel_parser.add_argument("-k", "--keys", default="abc123hij", help="Key string - default: 'abc123hij' (w/ keylength 3) ")
-feistel_parser.add_argument("-l", "--keylength", default=3, help="# chars in individual round keys - the key string's length must be a multiple of this number - default: 3", type=int)
+feistel_parser.add_argument("-k", "--key", default="abc123", help="Key - default: 'abc123' ")
 feistel_parser.add_argument("-r", "--rounds", default=16, help="# of rounds to run the feistel cipher for - default: 16", type=int)
 
 def main():
