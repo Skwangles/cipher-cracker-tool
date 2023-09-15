@@ -86,7 +86,7 @@ def f_func(text, key):
     """The f function used in the Feistal cipher"""
     return xor_string_and_key(text, key)
 
-def crack(cypher_text):
+def crack(args):
     """Cracks the cypher text, returning the key"""    
     return "Sorry bucko, you're on your own - this would take way too long to crack during this presentation"
 
