@@ -6,32 +6,38 @@ def encrypt(text: str, key: str):
 
     x = range(len(text))
     for i in x:
-        m = ord(text[i].upper())
-        k = ord(key[i].upper())
-        char = ((m + k) % 26) + ord('A')
-        cipher_text = cipher_text + chr(char)
-    print(cipher_text)
+        char = " "
+        # Encrypt a non space character
+        if text[i] != " ":
+            m = ord(text[i].upper())
+            k = ord(key[i].upper())
+            char = chr(((m + k) % 26) + ord('A'))
+        # Append character
+        cipher_text = cipher_text + char
     return cipher_text
 
 #
 # Decrypts the cypher text using key.
 #
-def decrypt(cypher_text: str, key: str):
+def decrypt(cipher_text: str, key: str):
     original_text = ""
 
-    x = range(len(cypher_text))
+    x = range(len(cipher_text))
     for i in x:
-        char = ord(cypher_text[i].upper())
-        k = ord(key[i].upper())
-        m = ((char - k) % 26) + ord('A')
-        original_text = original_text + chr(m)
-    print(original_text)
+        m = " "
+        # Decrypt a non space character
+        if text[i] != " ":
+            char = ord(cipher_text[i].upper())
+            k = ord(key[i].upper())
+            m = chr(((char - k) % 26) + ord('A'))
+        # Append character
+        original_text = original_text + m
     return original_text
 
 #
 # Cracks the cypher text, returning the key.
 #
-def crack(cypher_text):
+def crack(cipher_text):
     """Cracks the cypher text, returning the key"""
     return "Not implemented"
 
@@ -39,19 +45,24 @@ def crack(cypher_text):
 # Generate the key sequence in a cyclic manner from key.
 #
 def generate_key_sequence(text: str, key: str):
-    seq = list(key)
-    if (len(seq) == len(text)):
+    if (len(key) == len(text)):
         return key
     
-    x = range(len(text) - len(seq))
+    x = range(len(text) - len(key))
     for i in x:
-        letter = seq[i % len(text)]
-        seq.append(letter)
-    return "" . join(seq)
+        letter = " "
+        # Ignore space characters
+        if text[i] != " ":
+            letter = key[i % len(text)]
+        key = key + letter
+    return key
 
-# if __name__ == "__main__":
-#     text = "hiandwelcometomycypher"
-#     key = "crypto"
-#     key_seq = generate_key_sequence(text, key)
-#     cypher_text = encrypt(text, key_seq)
-#     original_text = decrypt(cypher_text, key_seq)
+if __name__ == "__main__":
+    text = "hi and welcome to my cypher"
+    key = "crypto"
+    key_seq = generate_key_sequence(text, key)
+    cipher_text = encrypt(text, key_seq)
+    original_text = decrypt(cipher_text, key_seq)
+
+    print(cipher_text)
+    print(original_text)
