@@ -9,16 +9,58 @@ import simple_substitution
 import feistel_cipher
 
 ### --- Cipher calls
-def call_cipher(cipher, args):
+
+            
+def call_caesar(args):
+    cipher = caesar_cipher
     match args.action.lower():
         case "crack":
-            print(cipher.crack(args))
+            print(cipher.crack(args.text))
         case "decrypt":
-            print(cipher.decrypt(args))
+            print(cipher.decrypt(args.text, args.shift))
         case "encrypt":
-            print(cipher.encrypt(args))
+            print(cipher.encrypt(args.text, args.shift))
         case _:
             print("Unsupported operation:", args.action)
+    
+def call_rsa(args):
+    cipher = rsa
+    match args.action.lower():
+        case "crack":
+            print(cipher.crack(args.text))
+        case "decrypt":
+            print(cipher.decrypt(args.text, args.private))
+        case "encrypt":
+            print(cipher.encrypt(args.text, args.public))
+        case _:
+            print("Unsupported operation:", args.action)
+
+def call_simple_substitution(args):
+    cipher = simple_substitution
+    match args.action.lower():
+        case "crack":
+            print(cipher.crack(args.text))
+        case "decrypt":
+            print(cipher.decrypt(args.text, args.key))
+        case "encrypt":
+            print(cipher.encrypt(args.text, args.key))
+        case _:
+            print("Unsupported operation:", args.action)
+    
+def call_feistel(args):
+    cipher = feistel_cipher
+    match args.action.lower():
+        case "crack":
+            print(cipher.crack(args.text))
+        case "decrypt":
+            print(cipher.decrypt(args.text, args.keys, args.keylength, args.rounds))
+        case "encrypt":
+            print(cipher.encrypt(args.text, args.keys, args.keylength, args.rounds))
+        case _:
+            print("Unsupported operation:", args.action)
+    
+    
+    
 
 ### ----- Arguments handling functions -----
 
@@ -63,18 +105,17 @@ def main():
     cipher_type = None
     match prog_args.cipher.lower():
         case "rsa":
-            cipher_type = rsa
+            call_rsa(prog_args)
         case "caesar":
-            cipher_type = caesar_cipher
+            call_caesar(prog_args)
         case "simple":
-            cipher_type = simple_substitution
+            call_simple_substitution(prog_args)
         case "feistel":
-            cipher_type = feistel_cipher
+            call_feistel(prog_args)
         case _:
             print("Unsupported cipher type:", prog_args.cipher)
             sys.exit(1)
-                 
-    call_cipher(cipher_type, prog_args)
+                
 
 if __name__ == "__main__":
     main()
