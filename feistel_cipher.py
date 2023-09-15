@@ -1,65 +1,74 @@
+from math import ceil
 import random
 import re
 from utils import *
+import hashlib
 
+def get_sub_key(key, round, block_size=16):
+    """Generates subkey through a relationship with the main key"""
+    # Hash the main key - add 'round' to change the result
+    hashed_key = string_to_binary(str(hashlib.sha256((key + "_" + str(round)).encode()).hexdigest()))
+    
+    # Case hash is too small
+    if len(hashed_key) < block_size:
+        hashed_key = hashed_key + hashed_key * (block_size // len(hashed_key))
+        return hashed_key[:block_size]
 
-def encrypt(text, keys="", keylength=3, rounds=16):
+    return hashed_key[:block_size]
+ 
+
+def encrypt(text, key="", rounds=16):
     """Encrypts the text using the key"""
-    keylength = int(keylength)
     rounds = int(rounds)
-    keys = str(keys)
-    
-    if len(text) % 2 != 0:
-        print("Text is not a multiple of 2, padding with 1x# at the end")
-        text = text + "#" # Pad to a multiple of 2
-    
-    if not keys or len(keys) == 0 or len(keys) % keylength != 0:
-            return "No key(s) provided, or keys are not a multiple of keylength"        
-    
-    keyspace = [keys[i:i+keylength] for i in range(0, len(keys), keylength)]
+    key = str(key)
+    rounds = int(rounds)
+  
+    if not key or len(key) == 0:
+        return "No key(s) provided"        
     
     text = string_to_binary(text)
+    
+    # sanity check - should never happen
+    if len(text) % 2 != 0: 
+        print("Text is not a multiple of 2, padding with a 0")
+        text += "0"
 
     L = text[:len(text)//2]
     R = text[len(text)//2:]
     
-    return str(feistel_cipher(L, R, rounds=rounds, keyspace=keyspace))
+    return str(feistel_cipher(L, R, key=key, rounds=rounds))
 
 
-def decrypt(cypher_text, keys="", keylength=3, rounds=16):
+def decrypt(cypher_text, key="", rounds=16):
     """Decrypts the cypher text using the key - cypher text must be a binary string"""
-    keylength = int(keylength)
     rounds = int(rounds)
-    keys = str(keys)
+    key = str(key)
     
     if re.match("^[01]+$", cypher_text) is None:
         return "Cypher text is not a binary string"
     
-    if not keys or len(keys) == 0 or len(keys) % keylength != 0:
+    if not key or len(key) == 0:
             return "No key(s) provided, or keys are not a multiple of keylength"        
-    
-    keyspace = [keys[i:i+keylength] for i in range(0, len(keys), keylength)]
-
-    # Decrypting is the same as encrypting, but with the keys in reverse order
-    keyspace.reverse() 
     
     #Text is already a binary string, so no need to convert
     
-    return binary_to_string(str(feistel_cipher(cypher_text[:len(cypher_text)//2], 
-                          cypher_text[len(cypher_text)//2:], 
-                          keyspace=keyspace,
-                          rounds=rounds)))
+    return binary_to_string(feistel_cipher(cypher_text[:len(cypher_text)//2], 
+                          cypher_text[len(cypher_text)//2:], key=key,
+                          rounds=rounds, reversed=True))
 
 
-def feistel_cipher(L, R, keyspace, rounds=16):
+def feistel_cipher(L, R, key, rounds=16, reversed=False):
     """Feistel cipher - encrypts the text using the key"""
 
     Li_less_1 = L
     Ri_less_1 = R
-    
-    for i in range(rounds):
-        key = keyspace[i % len(keyspace)]
-        pre_xor_Ri = f_func(Ri_less_1, key)
+
+    for i in range(0, rounds):        
+        # Apply f function to right half and key
+        position = i
+        if reversed:
+            position = (rounds-1) - i 
+        pre_xor_Ri = f_func(Ri_less_1, get_sub_key(key, position))
 
         # XOR the output of the f function with the left half
         Ri = xor_string_and_key(Li_less_1, pre_xor_Ri)
@@ -75,9 +84,7 @@ def feistel_cipher(L, R, keyspace, rounds=16):
 
 def f_func(text, key):
     """The f function used in the Feistal cipher"""
-    # Hash the text and key - doesn't need to be invertible
-    return xor_string_and_key(text, string_to_binary(key))
-
+    return xor_string_and_key(text, key)
 
 def crack(cypher_text):
     """Cracks the cypher text, returning the key"""    
@@ -88,11 +95,11 @@ if __name__ == "__main__":
     print("--------------")
     
     print("Encrypting 'Hello World' with key 'key' and 16 rounds")
-    cypher_text = encrypt("Hello World", "key")
+    cypher_text = encrypt("imnotencryptinganything", "asuperlongkeyisnowused", 16)
     print(cypher_text)
-    
-    print("Decrypting 'Hello World' with key 'key' and 16 rounds")
-    print(decrypt(cypher_text, "key"))
+    print("------------------")
+    print("Decrypting 'Hello World' with key 'keyasdfs' and 16 rounds")
+    print(decrypt(cypher_text, "asuperlongkeyisnowused", 16))
     
     print("Cracking 'Hello World'")
     print(crack(cypher_text))
