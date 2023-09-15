@@ -55,7 +55,7 @@ def crack(cipher_text):
     #try all possible shifts
     results = []
     for key in range(1,setLength):  
-        decryptedText = decrypt(cipher_text, key)[1:-1] #test decrypt with that key. remove first and last apostrophe
+        decryptedText = decrypt(cipher_text[1:-1], key)[1:-1] #test decrypt with that key. remove first and last apostrophes
         decryptedWords = decryptedText.split()
 
         #count number of matching english words
@@ -64,6 +64,7 @@ def crack(cipher_text):
 
     #sort by english word count descending
     results.sort(key=lambda result: result[2], reverse=True) 
+
     #make the results more readable for console output
     readableResults = '\n'.join(f"key: {key}\t\ttext: '{text}'\t\tenglish words: {wordCount}" for key, text, wordCount in results)
     return readableResults
