@@ -58,15 +58,18 @@ def crack(cipher_text):
         decrypted_text = decrypt(cipher_text[1:-1], key)[1:-1] #test decrypt with that key. remove first and last apostrophes
         decrypted_words = decrypted_text.split()
 
-        #count number of matching english words
+        #find english percentage of decrypted text
         english_word_count = sum(1 for word in decrypted_words if word.lower() in english_words)
-        results.append((key, decrypted_text, english_word_count))
+        if len(decrypted_words) == 0: percentage_english = 0.00
+        else: percentage_english = round((english_word_count / len(decrypted_words)) * 100, 2)
 
-    #sort by english word count descending
+        results.append((key, decrypted_text, percentage_english))
+
+    #sort by english percentage descending
     results.sort(key=lambda result: result[2], reverse=True) 
 
     #make the results more readable for console output
-    readable_results = '\n'.join(f"key: {key}\t\ttext: '{text}'\t\tenglish words: {word_count}" for key, text, word_count in results)
+    readable_results = '\n'.join(f"key: {key}\t\ttext: '{text}'\t\tenglish: {english_percent}%" for key, text, english_percent in results)
     return readable_results
 
 if __name__ == "__main__":
