@@ -40,6 +40,9 @@ def decrypt(cipher_text, key):
 def crack(cipher_text):
     """Cracks the cipher text using brute force, returning all the possible texts and keys, sorted by number of matching english words"""
     
+    #check for empty inputs
+    if not cipher_text or len(cipher_text) == 2 and cipher_text[0] == cipher_text[1] == "'": return "Empty cipher text. Nothing to crack"
+        
     #get english words if not already downloaded
     try:
         nltk.data.find('corpora/words.zip')
@@ -54,8 +57,12 @@ def crack(cipher_text):
 
     #try all possible shifts
     results = []
-    for key in range(1,set_length):  
-        decrypted_text = decrypt(cipher_text[1:-1], key)[1:-1] #test decrypt with that key. remove first and last apostrophes
+    for key in range(1,set_length):
+        #test decrypt with that key. clean up apostrophes in input if applicable
+        if len(cipher_text) > 0 and cipher_text[0] == cipher_text[len(cipher_text)-1] == "'":
+            decrypted_text = decrypt(cipher_text[1:-1], key)[1:-1]
+        else: decrypted_text = decrypt(cipher_text, key)[1:-1]
+
         decrypted_words = decrypted_text.split()
 
         #find english percentage of decrypted text
@@ -65,12 +72,23 @@ def crack(cipher_text):
 
         results.append((key, decrypted_text, percentage_english))
 
-    #sort by english percentage descending
-    results.sort(key=lambda result: result[2], reverse=True) 
+    results.sort(key=lambda result: result[2], reverse=True)
 
-    #make the results more readable for console output
-    readable_results = '\n'.join(f"key: {key}\t\ttext: '{text}'\t\tenglish: {english_percent}%" for key, text, english_percent in results)
-    return readable_results
+    #if one result is more english than the rest, only show that result
+    if results[0][2] > results[1][2]:
+        key, text, english_percent = results[0]
+        return f"key: {key}\t\ttext: '{text}'\t\tenglish: {english_percent}%"
+    
+    #show all results with some english if none is the best
+    elif results[0][2] == results[1][2] and results[0][2] > 0:
+        non_zero_results = [(key, text, english_percent) for key, text, english_percent in results if english_percent > 0]
+        if non_zero_results:
+            return '\n'.join(f"key: {key}\t\ttext: '{text}'\t\tenglish: {english_percent}%" for key, text, english_percent in non_zero_results)
+
+    #case: no english. show all results
+    else:
+        return '\n'.join(f"key: {key}\t\ttext: '{text}'\t\tenglish: {english_percent}%" for key, text, english_percent in results)
+     
 
 if __name__ == "__main__":
     print("Test encrypt")
@@ -98,4 +116,12 @@ if __name__ == "__main__":
   Nor it nor no remembrance what it was.
     But flowers distilled though they with winter meet,
     Leese but their show, their substance still lives sweet.""", 5)))
-    
+
+    print("Test crack: no best result")
+    print(crack(encrypt("egg", 13)))
+
+    print("Test crack: no english words")
+    print(crack(encrypt("arst", -1)))
+
+    print("Test crack: empty input")
+    print(crack(encrypt("", 1)))
