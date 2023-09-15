@@ -65,3 +65,31 @@ def crack(cipher_text):
     #make the results more readable for console output
     readableResults = '\n'.join(f"key: {key}\t\ttext: '{text}'\t\tenglish words: {wordCount}" for key, text, wordCount in results)
     return readableResults
+
+if __name__ == "__main__":
+    print("Test encrypt")
+    print(encrypt("abc", 1))
+    print(encrypt("abc", 2))
+    
+    print("Test decrypt")
+    print(decrypt("bcd", 1))
+    print(decrypt("cde", 2))
+    
+    print("Test crack")
+    print("Simple crack")
+    print(crack(encrypt("the best part of life is the way it ends even when cheese is full of hate", 5)))
+    print(crack(encrypt("""Those hours that with gentle work did frame
+  The lovely gaze where every eye doth dwell
+  Will play the tyrants to the very same,
+  And that unfair which fairly doth excel:
+  For never-resting time leads summer on
+  To hideous winter and confounds him there,
+  Sap checked with frost and lusty leaves quite gone,
+  Beauty o'er-snowed and bareness every where:
+  Then were not summer's distillation left
+  A liquid prisoner pent in walls of glass,
+  Beauty's effect with beauty were bereft,
+  Nor it nor no remembrance what it was.
+    But flowers distilled though they with winter meet,
+    Leese but their show, their substance still lives sweet.""", 5)))
+    
