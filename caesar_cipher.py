@@ -41,8 +41,11 @@ def crack(cipher_text):
     """Cracks the cipher text using brute force, returning all the possible texts and keys, sorted by number of matching english words"""
     
     #get english words if not already downloaded
-    if not nltk.data.find('corpora/words.zip'):
+    try:
+        nltk.data.find('corpora/words.zip')
+    except LookupError:
         nltk.download('words')
+        
     englishWords = set(words.words())
 
     #optimisation: if theres no alpha characters, only need to crack for digits
@@ -61,7 +64,6 @@ def crack(cipher_text):
 
     #sort by english word count descending
     results.sort(key=lambda result: result[2], reverse=True) 
-
     #make the results more readable for console output
     readableResults = '\n'.join(f"key: {key}\t\ttext: '{text}'\t\tenglish words: {wordCount}" for key, text, wordCount in results)
     return readableResults
