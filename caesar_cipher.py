@@ -1,6 +1,4 @@
-import nltk
-from nltk.corpus import words 
-
+from utils import get_english_percent
 
 def encrypt(text, key):
     """Encrypts the text using the key"""
@@ -43,14 +41,6 @@ def crack(cipher_text):
     #check for empty inputs
     if not cipher_text or len(cipher_text) == 2 and cipher_text[0] == cipher_text[1] == "'": return "Empty cipher text. Nothing to crack"
         
-    #get english words if not already downloaded
-    try:
-        nltk.data.find('corpora/words.zip')
-    except LookupError:
-        nltk.download('words')
-        
-    english_words = set(words.words())
-
     #optimisation: if theres no alpha characters, only need to crack for digits
     if any(char.isalpha() for char in cipher_text): set_length = 26
     else: set_length = 10
@@ -61,15 +51,10 @@ def crack(cipher_text):
         #test decrypt with that key. clean up apostrophes in input if applicable
         if len(cipher_text) > 0 and cipher_text[0] == cipher_text[len(cipher_text)-1] == "'":
             decrypted_text = decrypt(cipher_text[1:-1], key)[1:-1]
-        else: decrypted_text = decrypt(cipher_text, key)[1:-1]
+        else: 
+            decrypted_text = decrypt(cipher_text, key)[1:-1]
 
-        decrypted_words = decrypted_text.split()
-
-        #find english percentage of decrypted text
-        english_word_count = sum(1 for word in decrypted_words if word.lower() in english_words)
-        if len(decrypted_words) == 0: percentage_english = 0.00
-        else: percentage_english = round((english_word_count / len(decrypted_words)) * 100, 2)
-
+        percentage_english = get_english_percent(decrypted_text)
         results.append((key, decrypted_text, percentage_english))
 
     results.sort(key=lambda result: result[2], reverse=True)
