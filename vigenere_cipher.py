@@ -14,6 +14,8 @@ def encrypt(text: str, key: str):
             char = chr(((m + k) % 26) + ord('A'))
         # Append character
         cipher_text = cipher_text + char
+    print("Using key '" + key + "'\n" +
+          "Cipher text: " + cipher_text + "\n")
     return cipher_text
 
 #
@@ -32,6 +34,8 @@ def decrypt(cipher_text: str, key: str):
             m = chr(((char - k) % 26) + ord('A'))
         # Append character
         original_text = original_text + m
+    print("Using key '" + key + "'\n" +
+          "Original text: " + original_text + "\n")
     return original_text
 
 #
@@ -45,24 +49,29 @@ def crack(cipher_text):
 # Generate the key sequence in a cyclic manner from key.
 #
 def generate_key_sequence(text: str, key: str):
+    seq = ""
+    chars = 0
+
     if (len(key) == len(text)):
+        print("Key Sequence: " + key + "\n")
         return key
     
-    x = range(len(text) - len(key))
+    x = range(len(text))
     for i in x:
         letter = " "
         # Ignore space characters
         if text[i] != " ":
-            letter = key[i % len(text)]
-        key = key + letter
-    return key
+            letter = key[chars % len(key)]
+            chars = chars + 1
+        seq = seq + letter
+    print("Key Sequence: " + seq + "\n")
+    return seq
 
 if __name__ == "__main__":
     text = "hi and welcome to my cypher"
     key = "crypto"
+    print("Input text: " + text + "\n" +
+          "Key '" + key + "'\n")
     key_seq = generate_key_sequence(text, key)
     cipher_text = encrypt(text, key_seq)
     original_text = decrypt(cipher_text, key_seq)
-
-    print(cipher_text)
-    print(original_text)
