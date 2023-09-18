@@ -6,12 +6,14 @@ def encrypt(text: str, key: str):
 
     x = range(len(text))
     for i in x:
-        char = " "
-        # Encrypt a non space character
-        if text[i] != " ":
+        char = ""
+        # Encrypt a letter character
+        if text[i].isalpha():
             m = ord(text[i].upper())
             k = ord(key[i].upper())
             char = chr(((m + k) % 26) + ord('A'))
+        else:
+            char = text[i]
         # Append character
         cipher_text = cipher_text + char
     print("Using key '" + key + "'\n" +
@@ -26,12 +28,14 @@ def decrypt(cipher_text: str, key: str):
 
     x = range(len(cipher_text))
     for i in x:
-        m = " "
-        # Decrypt a non space character
-        if text[i] != " ":
+        m = ""
+        # Decrypt a letter character
+        if text[i].isalpha():
             char = ord(cipher_text[i].upper())
             k = ord(key[i].upper())
             m = chr(((char - k) % 26) + ord('A'))
+        else:
+            m = text[i]
         # Append character
         original_text = original_text + m
     print("Using key '" + key + "'\n" +
@@ -60,15 +64,15 @@ def generate_key_sequence(text: str, key: str):
     for i in x:
         letter = " "
         # Ignore space characters
-        if text[i] != " ":
+        if text[i].isalpha():
             letter = key[chars % len(key)]
             chars = chars + 1
         seq = seq + letter
-    print("Key Sequence: " + seq + "\n")
+    print("Key Sequence: '" + seq + "'\n")
     return seq
 
 if __name__ == "__main__":
-    text = "hi and welcome to my cypher"
+    text = "hi. and welcome to my cypher $123"
     key = "crypto"
     print("Input text: " + text + "\n" +
           "Key '" + key + "'\n")
