@@ -1,3 +1,43 @@
+from utils import *
+import string
+
+#
+# Get the likely key period based on index of coincidence averages.
+#
+def find_key_period(cipher_text: str, max_period: int):
+    # Remove punctuation and spaces
+    cipher_text = cipher_text.translate(str.maketrans("", "", string.punctuation)).replace(" ", "")
+    # Intialise variables
+    ioc_highest = 0
+    period = 0
+
+    # Compute index of coincidence on a range of key periods
+    x = range(2, max_period + 1)
+    for i in x:
+        # Initialise variables
+        chars = 0
+        ioc_sum = 0
+        columns = [''] * i
+
+        # Splitting characters into columns based on key period
+        y = range(len(cipher_text))
+        for j in y:
+            if (cipher_text[j].isalpha()):
+                columns[chars % i] += cipher_text[chars]
+                chars += 1
+        
+        # Computing average index of coincidence
+        z = range(i)
+        for k in z:
+            ioc_sum += index_of_coincidence(columns[k])
+        ioc_avg = ioc_sum / i
+
+        # Find the higher than expected index of coincidence
+        if (ioc_avg >= ioc_highest):
+            ioc_highest = ioc_avg
+            period = i
+    return period
+
 #
 # Encrypts the text using key.
 #
@@ -15,8 +55,8 @@ def encrypt(text: str, key: str):
         else:
             char = text[i]
         # Append character
-        cipher_text = cipher_text + char
-    print("Using key '" + key + "'\n" +
+        cipher_text += char
+    print("Using key sequence '" + key + "'\n" +
           "Cipher text: " + cipher_text + "\n")
     return cipher_text
 
@@ -37,8 +77,8 @@ def decrypt(cipher_text: str, key: str):
         else:
             m = text[i]
         # Append character
-        original_text = original_text + m
-    print("Using key '" + key + "'\n" +
+        original_text += m
+    print("Using key sequence '" + key + "'\n" +
           "Original text: " + original_text + "\n")
     return original_text
 
@@ -46,8 +86,10 @@ def decrypt(cipher_text: str, key: str):
 # Cracks the cypher text, returning the key.
 #
 def crack(cipher_text):
-    """Cracks the cypher text, returning the key"""
-    return "Not implemented"
+    if not cipher_text:
+        return "No cipher text"
+    print("Possible key period: " + str(find_key_period(cipher_text, 10)))
+    return "No key found yet"
 
 #
 # Generate the key sequence in a cyclic manner from key.
@@ -66,16 +108,19 @@ def generate_key_sequence(text: str, key: str):
         # Ignore space characters
         if text[i].isalpha():
             letter = key[chars % len(key)]
-            chars = chars + 1
-        seq = seq + letter
+            chars += 1
+        seq += letter
     print("Key Sequence: '" + seq + "'\n")
     return seq
 
 if __name__ == "__main__":
-    text = "hi. and welcome to my cypher $123"
+    # text = "hi. and welcome to my cypher $123"
+    text = "A space explorer is unexpectedly dragged into a conflict between two factions: Kodia Accord and Nexia Syndicate. He is pressured as he has to decide who he sides with and ultimately questions the relationship with his fellow crew members."
+    # text = "hello there this is cool"
     key = "crypto"
     print("Input text: " + text + "\n" +
           "Key '" + key + "'\n")
     key_seq = generate_key_sequence(text, key)
     cipher_text = encrypt(text, key_seq)
     original_text = decrypt(cipher_text, key_seq)
+    print(crack(cipher_text))
