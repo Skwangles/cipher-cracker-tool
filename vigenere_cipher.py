@@ -2,6 +2,20 @@ from utils import *
 import string
 
 #
+# Split the characters into columns based on key period
+#
+def split_text_into_columns(cipher_text: str, period: int):
+    chars = 0
+    columns = [''] * period
+
+    y = range(len(cipher_text))
+    for j in y:
+        if (cipher_text[j].isalpha()):
+            columns[chars % period] += cipher_text[chars]
+            chars += 1
+    return columns
+
+#
 # Get the likely key period based on index of coincidence averages.
 #
 def find_key_period(cipher_text: str, max_period: int):
@@ -14,17 +28,8 @@ def find_key_period(cipher_text: str, max_period: int):
     # Compute index of coincidence on a range of key periods
     x = range(2, max_period + 1)
     for i in x:
-        # Initialise variables
-        chars = 0
         ioc_sum = 0
-        columns = [''] * i
-
-        # Splitting characters into columns based on key period
-        y = range(len(cipher_text))
-        for j in y:
-            if (cipher_text[j].isalpha()):
-                columns[chars % i] += cipher_text[chars]
-                chars += 1
+        columns = split_text_into_columns(cipher_text, i)
         
         # Computing average index of coincidence
         z = range(i)
