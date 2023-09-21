@@ -33,17 +33,20 @@ def xor_string_and_key(string, key):
             output += '1'
     return output
 
+
 def string_to_binary(string):
     """Converts a string to a binary equivalent of the ascii char values"""
     # Adapted from https://www.geeksforgeeks.org/python-convert-string-to-binary/
     # get int value of ascii char, then convert to binary with 'format' and left pad to 8 bits
     return "".join(str(format(ord(i), "b").zfill(8)) for i in string)
 
+
 def binary_to_string(binary):
     """Converts a binary string to a string of characters"""
     # Adapted from https://www.geeksforgeeks.org/convert-binary-to-string-using-python/
     # Split the string into 8 bit chunks, use int(<num>, 2) to get base 10 version of binary, then convert to ascii value    
     return "".join(chr(int(binary[i:i+8],2)) for i in range(0, len(binary), 8))
+
 
 def random_key(length=3):
     """Generates a random key of the given length"""
@@ -75,35 +78,16 @@ def frequency_analysis(cipher_text):
     sorted_freq = ''.join(sorted_freq)
 
     return sorted_freq
+def get_modular_inv(num, mod):
+    return extended_euclidian_algorithm(num, mod)[0] % mod # Final %mod makes it positive
 
-def modInverse(A, M):
-    # From https://www.geeksforgeeks.org/multiplicative-inverse-under-modulo-m/ - Daniel confirmed okay to use
-    m0 = M
-    y = 0
-    x = 1
- 
-    if (M == 1):
-        return 0
- 
-    while (A > 1):
- 
-        # q is quotient
-        q = A // M
- 
-        t = M
- 
-        # m is remainder now, process
-        # same as Euclid's algo
-        M = A % M
-        A = t
-        t = y
- 
-        # Update x and y
-        y = x - q * y
-        x = t
- 
-    # Make x positive
-    if (x < 0):
-        x = x + m0
- 
-    return x
+def extended_euclidian_algorithm(a, b):
+    """Calculate the inverse of a mod b - x of [x,y] should be the inverse if b is coprime to a"""
+    # Adapted from https://www.youtube.com/watch?v=hf-PRdtzqTY
+    if b == 0:
+        # Have found the GCD, now back substitute
+        return [1, 1]
+    [x, y] = extended_euclidian_algorithm(b, a % b)
+    return [y, x - (a // b) * y]
+    
+    
