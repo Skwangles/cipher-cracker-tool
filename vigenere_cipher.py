@@ -1,8 +1,11 @@
 from utils import *
 import string
 
+ETAOIN = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
+ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+
 #
-# Split the characters into columns based on key period
+# Split the characters into columns based on key period.
 #
 def split_text_into_columns(cipher_text: str, period: int):
     chars = 0
@@ -16,11 +19,17 @@ def split_text_into_columns(cipher_text: str, period: int):
     return columns
 
 #
+# Return cipher text without spaces and punctuation characters.
+#
+def remove_spaces_punctuation(cipher_text: str):
+    return cipher_text.translate(str.maketrans("", "", string.punctuation)).replace(" ", "")
+
+#
 # Get the likely key period based on index of coincidence averages.
 #
 def find_key_period(cipher_text: str, max_period: int):
     # Remove punctuation and spaces
-    cipher_text = cipher_text.translate(str.maketrans("", "", string.punctuation)).replace(" ", "")
+    cipher_text = remove_spaces_punctuation(cipher_text)
     # Intialise variables
     ioc_highest = 0
     period = 0
@@ -42,6 +51,99 @@ def find_key_period(cipher_text: str, max_period: int):
             ioc_highest = ioc_avg
             period = i
     return period
+
+#
+# Get amount of frequency matches compared to the English frequency analysis
+#
+def get_english_frequency_match(text: str):
+    # Extract the six most and least common letters in ordered English frequency analysis
+    six_most_common_letters = ETAOIN[:6]
+    six_least_common_letters = ETAOIN[-6:]
+
+    frequency_letters_ordered = ""
+    frequencies = {
+        'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0,
+        'F': 0, 'G': 0, 'H': 0, 'I': 0, 'J': 0,
+        'K': 0, 'L': 0, 'M': 0, 'N': 0, 'O': 0,
+        'P': 0, 'Q': 0, 'R': 0, 'S': 0, 'T': 0,
+        'U': 0, 'V': 0, 'W': 0, 'X': 0, 'Y': 0,
+        'Z': 0
+    }
+    dictionary = {}
+    match_count = 0
+    
+    # Count number of times a letter occurs in a given text
+    for letter in text:
+        if letter in frequencies:
+            frequencies[letter] += 1
+
+    # Map the letter to frequency number
+    for letter in ALPHABET:
+        if frequencies[letter] not in dictionary:
+            dictionary[frequencies[letter]] = [letter]
+        else:
+            dictionary[frequencies[letter]].append(letter)
+
+    # Join letters with the same frequency number
+    for frequency in dictionary:
+        dictionary[frequency].sort(key=ETAOIN.find, reverse=True)
+        dictionary[frequency] = "".join(dictionary[frequency])
+    
+    # Sort the list in order of most frequent to least frequent
+    frequency_pairs = list(dictionary.items())
+    frequency_pairs.sort(reverse=True)
+
+    # Convert frequency list into a string
+    for frequency in frequency_pairs:
+        frequency_letters_ordered += frequency[1]
+
+    # Count number of times the six most common letters are in the six most frequent letters in a given text
+    for letter in six_most_common_letters:
+        if letter in frequency_letters_ordered[:6]:
+            match_count += 1
+
+    # Count number of times the six least common letters are in the six least frequent letters in a given text
+    for letter in six_least_common_letters:
+        if letter in frequency_letters_ordered[-6:]:
+            match_count += 1
+    return match_count
+
+#
+# TODO: Brute-force through all the possible keys from subkeys. Use index of coincidence.
+#
+def get_key(cipher_text: str, period: int):
+    cipher_text = remove_spaces_punctuation(cipher_text)
+    columns = split_text_into_columns(cipher_text, period)
+    # print(columns)
+    most_likely_subkeys = []
+
+    # Get potential subkeys from every column
+    for column in columns:
+        highest_match_letters = []
+        frequency_match = []
+        highest_match_number = 0
+        
+        # Get the match count for every letter in the alphabet
+        for i in ALPHABET:
+            temp_key = generate_key_sequence(column, i)
+            decrypted_column = decrypt(column, temp_key)
+            match = get_english_frequency_match(decrypted_column)
+            frequency_match.append(match)
+            # print(str(i) + " " + str(get_english_frequency_match(decrypted_column)))
+        
+        # Get the highest frequency match number
+        for i in range(len(ALPHABET)):
+            if frequency_match[i] > highest_match_number:
+                highest_match_number = frequency_match[i]
+
+        # Get all the letters with the highest frequency match number
+        for i, letter in enumerate(ALPHABET):
+            if frequency_match[i] == highest_match_number:
+                highest_match_letters.append(letter)
+        
+        # Append these letters as likely subkeys
+        most_likely_subkeys.append(highest_match_letters)
+    print(most_likely_subkeys)
 
 #
 # Encrypts the text using key.
@@ -83,8 +185,8 @@ def decrypt(cipher_text: str, key: str):
             m = text[i]
         # Append character
         original_text += m
-    print("Using key sequence '" + key + "'\n" +
-          "Original text: " + original_text + "\n")
+    # print("Using key sequence '" + key + "'\n" +
+    #       "Original text: " + original_text + "\n")
     return original_text
 
 #
@@ -93,8 +195,10 @@ def decrypt(cipher_text: str, key: str):
 def crack(cipher_text):
     if not cipher_text:
         return "No cipher text"
-    print("Possible key period: " + str(find_key_period(cipher_text, 10)))
-    return "No key found yet"
+    period = find_key_period(cipher_text, 10)
+    print("Possible key period: " + str(period))
+    key = get_key(cipher_text, period)
+    return key
 
 #
 # Generate the key sequence in a cyclic manner from key.
@@ -104,7 +208,7 @@ def generate_key_sequence(text: str, key: str):
     chars = 0
 
     if (len(key) == len(text)):
-        print("Key Sequence: " + key + "\n")
+        # print("Key Sequence: " + key + "\n")
         return key
     
     x = range(len(text))
@@ -115,7 +219,7 @@ def generate_key_sequence(text: str, key: str):
             letter = key[chars % len(key)]
             chars += 1
         seq += letter
-    print("Key Sequence: '" + seq + "'\n")
+    # print("Key Sequence: '" + seq + "'\n")
     return seq
 
 if __name__ == "__main__":
