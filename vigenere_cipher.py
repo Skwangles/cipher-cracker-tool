@@ -2,7 +2,9 @@ from utils import *
 from itertools import product
 import string
 
+# The alphabet in order of most common to least common.
 ETAOIN = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
+# The alphabet is regular order.
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 #
@@ -127,8 +129,6 @@ def encrypt(text: str, key: str):
             char = text[i]
         # Append character
         cipher_text += char
-    print("Using key sequence '" + key + "'\n" +
-          "Cipher text: " + cipher_text + "\n")
     return cipher_text
 
 #
@@ -149,8 +149,6 @@ def decrypt(cipher_text: str, key: str):
             m = text[i]
         # Append character
         original_text += m
-    # print("Using key sequence '" + key + "'\n" +
-    #       "Original text: " + original_text + "\n")
     return original_text
 
 #
@@ -161,8 +159,6 @@ def crack(cipher_text):
         return "No cipher text"
     
     period = find_key_period(cipher_text, 10)
-    print("Possible key period: " + str(period))
-
     cipher_text_modified = remove_spaces_punctuation(cipher_text)
     columns = split_text_into_columns(cipher_text_modified, period)
     possible_combinations = 1
@@ -186,7 +182,6 @@ def crack(cipher_text):
             decrypted_column = decrypt(column, temp_key)
             match = get_english_frequency_match(decrypted_column)
             frequency_match.append(match)
-            # print(str(i) + " " + str(get_english_frequency_match(decrypted_column)))
         
         # Get the highest frequency match number
         for i in range(len(ALPHABET)):
@@ -201,10 +196,11 @@ def crack(cipher_text):
         # Append these letters as likely subkeys
         most_likely_subkeys.append(highest_match_letters)
     
+    # Count number of possible key combinations
     for subkey_column in most_likely_subkeys:
         possible_combinations *= len(subkey_column)
-    print("There are " + str(possible_combinations) + " possible key combinations...")
     
+    # Brute force each key and find its index of coincidence
     for i in product(*most_likely_subkeys):
         key = "".join(i)
         key_sequence = generate_key_sequence(cipher_text, key)
@@ -216,9 +212,12 @@ def crack(cipher_text):
             "ioc": ioc,
         })
 
+    # Key with the highest index of coincidence is the likely the correct key
     for k in keys:
         if k["ioc"] > highest_ioc_key["ioc"]:
             highest_ioc_key = k
+    highest_ioc_key["period"] = period
+    highest_ioc_key["combinations"] = possible_combinations
     return highest_ioc_key
 
 #
@@ -227,32 +226,55 @@ def crack(cipher_text):
 def generate_key_sequence(text: str, key: str):
     seq = ""
     chars = 0
-
+    
+    # Return key if length of both strings are equal
     if (len(key) == len(text)):
-        # print("Key Sequence: " + key + "\n")
         return key
     
+    # Cycle through the key
     x = range(len(text))
     for i in x:
         letter = " "
-        # Ignore space characters
+        # Ignore non alphabetic characters
         if text[i].isalpha():
             letter = key[chars % len(key)]
             chars += 1
         seq += letter
-    # print("Key Sequence: '" + seq + "'\n")
     return seq
 
 if __name__ == "__main__":
-    # text = "hi. and welcome to my cypher $123"
     text = "A space explorer is unexpectedly dragged into a conflict between two factions: Kodia Accord and Nexia Syndicate. He is pressured as he has to decide who he sides with and ultimately questions the relationship with his fellow crew members."
-    # text = "hello there this is cool"
     key = "crypto"
-    print("Input text: " + text + "\n" +
-          "Key '" + key + "'\n")
+
+    print("\n--------------" + 
+          "\nINITIALISATION" +
+          "\n--------------\n" + 
+          "\nInput text:\n" + text + "\n"
+          "\nKey:\n'" + key + "'\n")
+    
     key_seq = generate_key_sequence(text, key)
+    print("\n---------------------" + 
+          "\nGENERATE KEY SEQUENCE" +
+          "\n---------------------\n" + 
+          "\nKey Sequence:\n'" + key_seq + "'\n")
+
     cipher_text = encrypt(text, key_seq)
+    print("\n----------" + 
+          "\nENCRYPTION" +
+          "\n----------\n" +
+          "\nCipher Text:\n" + cipher_text + "\n")
+
     original_text = decrypt(cipher_text, key_seq)
+    print("\n----------" + 
+          "\nDECRYPTION" +
+          "\n----------\n" +
+          "\nOriginal Text:\n" + original_text + "\n")
+
     cracked_key = crack(cipher_text)
-    print(cracked_key["key"] + "\n" +
-          cracked_key["text"] + "\n")
+    print("\n------------------------" +
+          "\nCRACKING VIGENERE CIPHER" +
+          "\n------------------------\n" +
+          "\nPossible Key Period:\n" + str(cracked_key["period"]) +
+          "\nPossible Key Combinations:\n" + str(cracked_key["combinations"]) + "\n" + 
+          "\nKey:\n'" + cracked_key["key"] + "'\n" +
+          "\nText:\n" + cracked_key["text"] + "\n")
