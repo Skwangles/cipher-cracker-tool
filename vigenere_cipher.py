@@ -1,4 +1,5 @@
 from utils import *
+from itertools import product
 import string
 
 ETAOIN = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
@@ -109,43 +110,6 @@ def get_english_frequency_match(text: str):
     return match_count
 
 #
-# TODO: Brute-force through all the possible keys from subkeys. Use index of coincidence.
-#
-def get_key(cipher_text: str, period: int):
-    cipher_text = remove_spaces_punctuation(cipher_text)
-    columns = split_text_into_columns(cipher_text, period)
-    # print(columns)
-    most_likely_subkeys = []
-
-    # Get potential subkeys from every column
-    for column in columns:
-        highest_match_letters = []
-        frequency_match = []
-        highest_match_number = 0
-        
-        # Get the match count for every letter in the alphabet
-        for i in ALPHABET:
-            temp_key = generate_key_sequence(column, i)
-            decrypted_column = decrypt(column, temp_key)
-            match = get_english_frequency_match(decrypted_column)
-            frequency_match.append(match)
-            # print(str(i) + " " + str(get_english_frequency_match(decrypted_column)))
-        
-        # Get the highest frequency match number
-        for i in range(len(ALPHABET)):
-            if frequency_match[i] > highest_match_number:
-                highest_match_number = frequency_match[i]
-
-        # Get all the letters with the highest frequency match number
-        for i, letter in enumerate(ALPHABET):
-            if frequency_match[i] == highest_match_number:
-                highest_match_letters.append(letter)
-        
-        # Append these letters as likely subkeys
-        most_likely_subkeys.append(highest_match_letters)
-    print(most_likely_subkeys)
-
-#
 # Encrypts the text using key.
 #
 def encrypt(text: str, key: str):
@@ -195,10 +159,67 @@ def decrypt(cipher_text: str, key: str):
 def crack(cipher_text):
     if not cipher_text:
         return "No cipher text"
+    
     period = find_key_period(cipher_text, 10)
     print("Possible key period: " + str(period))
-    key = get_key(cipher_text, period)
-    return key
+
+    cipher_text_modified = remove_spaces_punctuation(cipher_text)
+    columns = split_text_into_columns(cipher_text_modified, period)
+    possible_combinations = 1
+    highest_ioc_key = { 
+        "key": "",
+        "text": "",
+        "ioc": 0,
+    }
+    most_likely_subkeys = []
+    keys = []
+
+    # Get potential subkeys from every column
+    for column in columns:
+        highest_match_letters = []
+        frequency_match = []
+        highest_match_number = 0
+        
+        # Get the match count for every letter in the alphabet
+        for i in ALPHABET:
+            temp_key = generate_key_sequence(column, i)
+            decrypted_column = decrypt(column, temp_key)
+            match = get_english_frequency_match(decrypted_column)
+            frequency_match.append(match)
+            # print(str(i) + " " + str(get_english_frequency_match(decrypted_column)))
+        
+        # Get the highest frequency match number
+        for i in range(len(ALPHABET)):
+            if frequency_match[i] > highest_match_number:
+                highest_match_number = frequency_match[i]
+
+        # Get all the letters with the highest frequency match number
+        for i, letter in enumerate(ALPHABET):
+            if frequency_match[i] == highest_match_number:
+                highest_match_letters.append(letter)
+        
+        # Append these letters as likely subkeys
+        most_likely_subkeys.append(highest_match_letters)
+    
+    for subkey_column in most_likely_subkeys:
+        possible_combinations *= len(subkey_column)
+    print("There are " + str(possible_combinations) + " possible key combinations...")
+    
+    for i in product(*most_likely_subkeys):
+        key = "".join(i)
+        key_sequence = generate_key_sequence(cipher_text, key)
+        decrypted_text = decrypt(cipher_text, key_sequence)
+        ioc = index_of_coincidence(remove_spaces_punctuation(decrypted_text))
+        keys.append({ 
+            "key": key,
+            "text": decrypted_text,
+            "ioc": ioc,
+        })
+
+    for k in keys:
+        if k["ioc"] > highest_ioc_key["ioc"]:
+            highest_ioc_key = k
+    return highest_ioc_key
 
 #
 # Generate the key sequence in a cyclic manner from key.
@@ -232,4 +253,6 @@ if __name__ == "__main__":
     key_seq = generate_key_sequence(text, key)
     cipher_text = encrypt(text, key_seq)
     original_text = decrypt(cipher_text, key_seq)
-    print(crack(cipher_text))
+    cracked_key = crack(cipher_text)
+    print(cracked_key["key"] + "\n" +
+          cracked_key["text"] + "\n")
