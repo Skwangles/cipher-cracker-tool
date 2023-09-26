@@ -7,10 +7,8 @@ ETAOIN = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
 # The alphabet is regular order.
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-#
-# Split the characters into columns based on key period.
-#
 def split_text_into_columns(cipher_text: str, period: int):
+    """Split the characters into columns based on key period."""
     chars = 0
     columns = [''] * period
 
@@ -21,16 +19,12 @@ def split_text_into_columns(cipher_text: str, period: int):
             chars += 1
     return columns
 
-#
-# Return cipher text without spaces and punctuation characters.
-#
 def remove_spaces_punctuation(cipher_text: str):
+    """Return cipher text without spaces and punctuation characters."""
     return cipher_text.translate(str.maketrans("", "", string.punctuation)).replace(" ", "")
 
-#
-# Get the likely key period based on index of coincidence averages.
-#
 def find_key_period(cipher_text: str, max_period: int):
+    """Get the likely key period based on index of coincidence averages."""
     # Remove punctuation and spaces
     cipher_text = remove_spaces_punctuation(cipher_text)
     # Intialise variables
@@ -55,10 +49,8 @@ def find_key_period(cipher_text: str, max_period: int):
             period = i
     return period
 
-#
-# Get amount of frequency matches compared to the English frequency analysis
-#
 def get_english_frequency_match(text: str):
+    """Get amount of frequency matches compared to the English frequency analysis."""
     # Extract the six most and least common letters in ordered English frequency analysis
     six_most_common_letters = ETAOIN[:6]
     six_least_common_letters = ETAOIN[-6:]
@@ -111,10 +103,8 @@ def get_english_frequency_match(text: str):
             match_count += 1
     return match_count
 
-#
-# Encrypts the text using key.
-#
 def encrypt(text: str, key: str):
+    """Encrypts the text using key."""
     cipher_text = ""
 
     x = range(len(text))
@@ -131,10 +121,8 @@ def encrypt(text: str, key: str):
         cipher_text += char
     return cipher_text
 
-#
-# Decrypts the cypher text using key.
-#
 def decrypt(cipher_text: str, key: str):
+    """Decrypts the cypher text using key."""
     original_text = ""
 
     x = range(len(cipher_text))
@@ -151,10 +139,8 @@ def decrypt(cipher_text: str, key: str):
         original_text += m
     return original_text
 
-#
-# Cracks the cypher text, returning the key.
-#
 def crack(cipher_text):
+    """Cracks the cypher text, returning the key."""
     if not cipher_text:
         return "No cipher text"
     
@@ -220,10 +206,8 @@ def crack(cipher_text):
     highest_ioc_key["combinations"] = possible_combinations
     return highest_ioc_key
 
-#
-# Generate the key sequence in a cyclic manner from key.
-#
 def generate_key_sequence(text: str, key: str):
+    """Generate the key sequence in a cyclic manner from key."""
     seq = ""
     chars = 0
     
