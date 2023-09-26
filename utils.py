@@ -49,3 +49,25 @@ def random_key(length=3):
     """Generates a random key of the given length"""
     alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
     return "".join(random.choice(alphabet.ascii_lowercase) for i in range(length))
+
+def get_alphabet():
+    alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+    return alphabet
+
+def frequency_analysis(cipher_text):
+    """Returns frequencies of each letter in a string"""   
+    # Count each letter's frequency in the ciphertext
+    letter_freq = {}
+    for letter in cipher_text:
+        if letter.isalpha():
+            letter = letter.upper()
+            if letter not in letter_freq:
+                letter_freq[letter] = 1
+            else:
+                letter_freq[letter] += 1
+
+    # Sort letters by frequency
+    sorted_freq = sorted(letter_freq, key=letter_freq.get, reverse=True)
+    sorted_freq = ''.join(sorted_freq)
+
+    return sorted_freq
