@@ -63,7 +63,7 @@ def crack(cypher_text):
     if not cypher_text:
         return "Missing required arguments for this function"    
     
-    # Frequency order
+    # Frequency order#
     english_freq_order = 'ETAOINSHRDLCUMWFGYPBVKJXQZ'
 
     mapping = {}
