@@ -65,7 +65,8 @@ if __name__ == "__main__":
     print("Encrypting 5 with a=3, b=7, p=11")
     result = encrypt(5, 3, 7, 11)
     print(result)
-    print("Decrypting result with b=7, p=11")
-    print(decrypt(result, 7, 11))
-    print("Cracking m_a=4, m_ab=5, m_b=9, p=11")
-    print(crack(4, 5, 9, 11))
+   
+    print("Decrypting result")
+    print(decrypt(11, b=b, p=p))
+    print("Cracking")
+    print(crack(7, 12, 11, 17))
