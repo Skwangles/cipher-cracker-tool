@@ -120,6 +120,7 @@ def frequency_analysis(cipher_text):
     return sorted_freq
 
 def modInverse(A, M):
+    # From https://www.geeksforgeeks.org/multiplicative-inverse-under-modulo-m/ - Daniel confirmed okay to use
     m0 = M
     y = 0
     x = 1
