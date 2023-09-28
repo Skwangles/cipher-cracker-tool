@@ -118,16 +118,34 @@ def frequency_analysis(cipher_text):
     sorted_freq = ''.join(sorted_freq)
 
     return sorted_freq
-def get_modular_inv(num, mod):
-    return extended_euclidian_algorithm(num, mod)[0] % mod # Final %mod makes it positive
 
-def extended_euclidian_algorithm(a, b):
-    """Calculate the inverse of a mod b - x of [x,y] should be the inverse if b is coprime to a"""
-    # Adapted from https://www.youtube.com/watch?v=hf-PRdtzqTY
-    if b == 0:
-        # Have found the GCD, now back substitute
-        return [1, 1]
-    [x, y] = extended_euclidian_algorithm(b, a % b)
-    return [y, x - (a // b) * y]
-    
-    
+def modInverse(A, M):
+    m0 = M
+    y = 0
+    x = 1
+ 
+    if (M == 1):
+        return 0
+ 
+    while (A > 1):
+ 
+        # q is quotient
+        q = A // M
+ 
+        t = M
+ 
+        # m is remainder now, process
+        # same as Euclid's algo
+        M = A % M
+        A = t
+        t = y
+ 
+        # Update x and y
+        y = x - q * y
+        x = t
+ 
+    # Make x positive
+    if (x < 0):
+        x = x + m0
+ 
+    return x
