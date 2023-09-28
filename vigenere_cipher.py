@@ -6,6 +6,7 @@ import string
 ETAOIN = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
 # The alphabet is regular order.
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+REASONABLE_MAX_PERIOD = 10
 
 def split_text_into_columns(cipher_text: str, period: int):
     """Split the characters into columns based on key period."""
@@ -21,12 +22,14 @@ def split_text_into_columns(cipher_text: str, period: int):
 
 def remove_spaces_punctuation(cipher_text: str):
     """Return cipher text without spaces and punctuation characters."""
-    return cipher_text.translate(str.maketrans("", "", string.punctuation)).replace(" ", "")
+    return cipher_text.translate(str.maketrans("", "", string.punctuation + "\n\t\s\r")).replace(" ", "")
 
 def find_key_period(cipher_text: str, max_period: int):
     """Get the likely key period based on index of coincidence averages."""
     # Remove punctuation and spaces
-    cipher_text = remove_spaces_punctuation(cipher_text)
+    if not cipher_text.isalpha():
+        cipher_text = remove_spaces_punctuation(cipher_text)
+        
     # Intialise variables
     ioc_highest = 0
     period = 0
@@ -129,12 +132,12 @@ def decrypt(cipher_text: str, key: str):
     for i in x:
         m = ""
         # Decrypt a letter character
-        if text[i].isalpha():
+        if cipher_text[i].isalpha():
             char = ord(cipher_text[i].upper())
             k = ord(key[i].upper())
             m = chr(((char - k) % 26) + ord('A'))
         else:
-            m = text[i]
+            m = cipher_text[i]
         # Append character
         original_text += m
     return original_text
