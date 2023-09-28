@@ -112,9 +112,9 @@ feistel_parser.add_argument("-k", "--key", default="abc123", help="Key - default
 feistel_parser.add_argument("-r", "--rounds", default=16, help="# of rounds to run the feistel cipher for - default: 16", type=int)
 
 # vigenere - text based key
-simple_parser = individual_cipher_arg_parsers.add_parser("vigenere", help="Vigenere Cipher")
-simple_parser.add_argument("-t","--text", required=True, help="*Text to encrypt/decrypt")
-simple_parser.add_argument("-k", "--key", default="cars", help="Key - default: 'cars'")
+vigenere_parser = individual_cipher_arg_parsers.add_parser("vigenere", help="Vigenere Cipher")
+vigenere_parser.add_argument("-t","--text", required=True, help="*Text to encrypt/decrypt")
+vigenere_parser.add_argument("-k", "--key", default="cars", help="Key - default: 'cars'")
 
 def main():
     prog_args = parser.parse_args()
