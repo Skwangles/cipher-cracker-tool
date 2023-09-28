@@ -8,6 +8,7 @@ import rsa
 import simple_substitution
 import feistel_cipher
 import elgamal
+import massey_omura
 
 ### --- Cipher calls
 
@@ -21,6 +22,18 @@ def call_caesar(args):
             print(cipher.decrypt(str(args.text), int(args.shift)))
         case "encrypt":
             print(cipher.encrypt(str(args.text), int(args.shift)))
+        case _:
+            print("Unsupported operation:", args.action)
+            
+def call_massey_omura(args):
+    cipher = massey_omura
+    match args.action.lower():
+        case "crack":
+            print(cipher.crack(int(args.step1), int(args.step2), int(args.step3), int(args.prime)))
+        case "decrypt":
+            print(cipher.decrypt(int(args.text), int(args.receiver), int(args.prime)))
+        case "encrypt":
+            print(cipher.encrypt(int(args.text), int(args.sender), int(args.receiver), int(args.prime)))
         case _:
             print("Unsupported operation:", args.action)
 
@@ -100,6 +113,16 @@ elgamal_parser.add_argument("-a", "-r", "--root", required=True, help="Root valu
 elgamal_parser.add_argument("-p", "--modulus", required=True, help="Modulus value", type=int)
 
 
+# rsa
+massey_omura_parser = individual_cipher_arg_parsers.add_parser("massey", help="Massey-Omura cryptosystem")
+massey_omura_parser.add_argument("-t","--text", required=True, help="*Number to encrypt/decrypt")
+massey_omura_parser.add_argument("-p", "--prime", required=True, help="Prime number")
+massey_omura_parser.add_argument("-a", "-s", "--sender", help="Sender/Alice's key")
+massey_omura_parser.add_argument("-b", "-r","--receiver", help="Receiver/Bob's key")
+massey_omura_parser.add_argument("-1", "--step1", help="m^sender - used by crack")
+massey_omura_parser.add_argument("-2", "--step2", help="m^(sender*receiver) - used by crack")
+massey_omura_parser.add_argument("-3", "--step3", help="m^receiver - used by crack")
+
 # simple sub - text based key
 simple_parser = individual_cipher_arg_parsers.add_parser("simple", help="Simple Substitution Cipher")
 simple_parser.add_argument("-t","--text", required=True, help="*Text to encrypt/decrypt")
@@ -124,6 +147,8 @@ def main():
             call_feistel(prog_args)
         case "elgamal":
             call_elgamal(prog_args)
+        case "massey":
+            call_massey_omura(prog_args)
         case _:
             print("Unsupported cipher type:", prog_args.cipher)
             sys.exit(1)
