@@ -1,8 +1,16 @@
 from math import ceil
 import random
+from alive_progress import alive_bar
 import re
 from utils import *
 import hashlib
+import itertools
+ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789"
+
+def generate_combinations(max_length):
+    for length in range(1, max_length + 1):
+        for combo in itertools.product(ALPHABET, repeat=length):
+            yield ''.join(combo)
 
 def get_sub_key(key, round, block_size=16):
     """Generates subkey through a relationship with the main key"""
@@ -82,8 +90,29 @@ def f_func(text, key):
     return xor_string_and_key(text, key)
 
 def crack(cypher_text):
-    """Cracks the cypher text, returning the key"""    
-    return "Sorry bucko, you're on your own - this would take way too long to crack during this presentation"
+    """Cracks the cypher text, returning the key"""
+    print("Cracking the cypher text... If your key is longer than 5 characters this will take a while...")
+    MAX_KEY_CRACK_LENGTH = 10
+    MAX_ROUNDS = 16
+    initial_conversion = str(binary_to_string(cypher_text))
+    if initial_conversion.isalnum() and index_of_coincidence(initial_conversion) > 0.066:
+        print("No key needed - text is already decrypted")
+        return binary_to_string(cypher_text)
+    
+    with alive_bar(pow(len(ALPHABET), MAX_KEY_CRACK_LENGTH) * MAX_ROUNDS) as bar:
+        for i in range(MAX_ROUNDS, 1, -1):
+                for key in generate_combinations(MAX_KEY_CRACK_LENGTH):
+                    decrypted = str(decrypt(cypher_text, key, i))
+                    # print("Trying key: " + key + " with " + str(i) + " rounds: " + decrypted[:20] + "...")
+                    if decrypted.isalnum() and index_of_coincidence(decrypted) > 0.066:
+                        # Finish the loading bars
+                        bar(skipped=True)
+                        print("Done")
+                        return "Key: " + key + ", Plain Text: " + str(decrypt(cypher_text, key, i))
+                    bar()
+    return "No key found in the reasonable limits we've set - increase MAX_KEY_CRACK_LENGTH or MAX_ROUNDS"
+
+
 
 if __name__ == "__main__":
     print("Feistel cipher")
