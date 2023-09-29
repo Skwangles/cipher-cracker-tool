@@ -91,9 +91,13 @@ def f_func(text, key):
 
 def crack(cypher_text):
     """Cracks the cypher text, returning the key"""
-    print("Cracking the cypher text... If your key is longer than 5 characters this will take a while...")
-    MAX_KEY_CRACK_LENGTH = 10
-    MAX_ROUNDS = 16
+    
+    print("Cracking the cypher text... If your key is longer than 4 characters we...")
+    
+    MAX_KEY_CRACK_LENGTH = 4 # 36^4 = 1,679,616 combinations, so no chance of cracking a key longer than 4 characters
+    MAX_ROUNDS = 16 # 16 rounds is the default, so we'll start there
+    
+    # Check if the text is already decrypted - some one might have put in the wrong thing
     initial_conversion = str(binary_to_string(cypher_text))
     if initial_conversion.isalnum() and index_of_coincidence(initial_conversion) > 0.066:
         print("No key needed - text is already decrypted")
@@ -110,6 +114,7 @@ def crack(cypher_text):
                         print("Done")
                         return "Key: " + key + ", Plain Text: " + str(decrypt(cypher_text, key, i))
                     bar()
+                    
     return "No key found in the reasonable limits we've set - increase MAX_KEY_CRACK_LENGTH or MAX_ROUNDS"
 
 
