@@ -2,6 +2,7 @@ from math import ceil
 import random
 from alive_progress import alive_bar
 import re
+from string_conversions import *
 from utils import *
 import hashlib
 import itertools
@@ -9,6 +10,7 @@ ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789"
 
 def generate_combinations(max_length):
     for length in range(1, max_length + 1):
+        print("- Trying combinations of length " + str(length) + "...")
         for combo in itertools.product(ALPHABET, repeat=length):
             yield ''.join(combo)
 
@@ -29,31 +31,33 @@ def encrypt(text, key="", rounds=16):
     """Encrypts the text using the key"""
   
     if not key or len(key) == 0:
-        return "No key(s) provided"        
+        return "No key provided"        
     
-    text = string_to_binary(text)
+    bin = string_to_binary(text)
     
     # sanity check - should never happen
-    if len(text) % 2 != 0: 
+    if len(bin) % 2 != 0: 
         print("Text is not a multiple of 2, padding with a 0")
-        text += "0"
+        bin += "0"
 
-    L = text[:len(text)//2]
-    R = text[len(text)//2:]
+    L = bin[:len(bin)//2]
+    R = bin[len(bin)//2:]
     
-    return str(feistel_cipher(L, R, key=key, rounds=rounds))
+    # Convert to output type
+    return binary_to_hex(str(feistel_cipher(L, R, key=key, rounds=rounds)))
 
 
 def decrypt(cypher_text, key="", rounds=16):
     """Decrypts the cypher text using the key - cypher text must be a binary string"""
     
-    if re.match("^[01]+$", cypher_text) is None:
-        return "Cypher text is not a binary string"
+    if re.match("^[a-f0-9A-F]+$", cypher_text) is None:
+        raise Exception("Cypher text is not a binary string")
     
     if not key or len(key) == 0:
             return "No key(s) provided, or keys are not a multiple of keylength"        
     
-    #Text is already a binary string, so no need to convert
+    # binary is used for the feistel cipher, so convert to binary
+    cypher_text = hex_to_binary(str(cypher_text))
     
     return binary_to_string(feistel_cipher(cypher_text[:len(cypher_text)//2], 
                           cypher_text[len(cypher_text)//2:], key=key,
@@ -61,7 +65,7 @@ def decrypt(cypher_text, key="", rounds=16):
 
 
 def feistel_cipher(L, R, key, rounds=16, reversed=False):
-    """Feistel cipher - encrypts the text using the key"""
+    """Feistel cipher - encrypts the text using the key - input/output are binary strings"""
 
     Li_less_1 = L
     Ri_less_1 = R
@@ -71,7 +75,8 @@ def feistel_cipher(L, R, key, rounds=16, reversed=False):
         position = i
         if reversed:
             position = (rounds-1) - i 
-        pre_xor_Ri = f_func(Ri_less_1, get_sub_key(key, position))
+            
+        pre_xor_Ri = f_func(Ri_less_1, get_sub_key(str(key), position, block_size=len(Ri_less_1)))
 
         # XOR the output of the f function with the left half
         Ri = xor_string_and_key(Li_less_1, pre_xor_Ri)
@@ -90,30 +95,28 @@ def f_func(text, key):
     return xor_string_and_key(text, key)
 
 def crack(cypher_text):
-    """Cracks the cypher text, returning the key"""
+    """Cracks the cypher text, returning the key - cypher text must be a hex string"""
+    print("Cracking the cypher text... If your key is longer than 4 characters you're screwed...")
     
-    print("Cracking the cypher text... If your key is longer than 4 characters we...")
-    
-    MAX_KEY_CRACK_LENGTH = 4 # 36^4 = 1,679,616 combinations, so no chance of cracking a key longer than 4 characters
-    MAX_ROUNDS = 16 # 16 rounds is the default, so we'll start there
+    # 36^4 = 1,679,616 combinations, so no chance of cracking a key longer than 4 characters
+    MAX_KEY_CRACK_LENGTH = 4 
+    # 16 rounds is the default, so we'll start there
+    MAX_ROUNDS = 16 
     
     # Check if the text is already decrypted - some one might have put in the wrong thing
-    initial_conversion = str(binary_to_string(cypher_text))
+    initial_conversion = str(binary_to_string(hex_to_binary(cypher_text)))
     if initial_conversion.isalnum() and index_of_coincidence(initial_conversion) > 0.066:
         print("No key needed - text is already decrypted")
         return binary_to_string(cypher_text)
     
-    with alive_bar(pow(len(ALPHABET), MAX_KEY_CRACK_LENGTH) * MAX_ROUNDS) as bar:
-        for i in range(MAX_ROUNDS, 1, -1):
-                for key in generate_combinations(MAX_KEY_CRACK_LENGTH):
-                    decrypted = str(decrypt(cypher_text, key, i))
-                    # print("Trying key: " + key + " with " + str(i) + " rounds: " + decrypted[:20] + "...")
-                    if decrypted.isalnum() and index_of_coincidence(decrypted) > 0.066:
-                        # Finish the loading bars
-                        bar(skipped=True)
-                        print("Done")
-                        return "Key: " + key + ", Plain Text: " + str(decrypt(cypher_text, key, i))
-                    bar()
+    for i in range(MAX_ROUNDS, 1, -1):
+        print("Trying with " + str(i) + " rounds...")
+        for key in generate_combinations(MAX_KEY_CRACK_LENGTH):
+            decrypted = str(decrypt(cypher_text, key, i))
+            if decrypted.isalnum() and index_of_coincidence(decrypted) > 0.066:
+                # Finish the loading bars
+                print("Done")
+                return "Key: " + key + ", Plain Text: " + str(decrypt(cypher_text, key, i))
                     
     return "No key found in the reasonable limits we've set - increase MAX_KEY_CRACK_LENGTH or MAX_ROUNDS"
 
@@ -124,11 +127,15 @@ if __name__ == "__main__":
     print("--------------")
     
     print("Encrypting 'Hello World' with key 'key' and 16 rounds")
-    cypher_text = encrypt("imnotencryptinganything", "asuperlongkeyisnowused", 16)
+    key = "asuperlongkeyisnowused"
+    cypher_text = encrypt(text="imnotgoingtoencryptanything", key=key, rounds=16)
     print(cypher_text)
     print("------------------")
-    print("Decrypting 'Hello World' with key 'keyasdfs' and 16 rounds")
-    print(decrypt(cypher_text, "asuperlongkeyisnowused", 16))
+    print("Decrypting with key")
+    print(decrypt(cypher_text, key, 16))
     
-    print("Cracking 'Hello World'")
+    print("Cracking")
     print(crack(cypher_text))
+    
+    # Interestingly enough - I found a collision in the hash function used to generate the subkeys. 
+    # The key 'asuperlongkeyisnowused' and text 'imnotgoingtoencryptanything' collides with 'd80' both produce the same subkey.
