@@ -64,16 +64,10 @@ if __name__ == "__main__":
     # step 3 - mb = 11
     # step 4 - m = 3
     
-    # m = 3
-    # a = 11
-    # b = 7
-    # p = 17
-    
-    # Assignment
-    m = 10
-    a = 3
-    b = 5
-    p =17
+    m = 3
+    a = 11
+    b = 7
+    p = 17
     
     print("### Encrypting: ", m, "###")
     result = encrypt(m=m, a=a, b=b, p=p)
