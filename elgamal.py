@@ -6,11 +6,16 @@ def encrypt(m, yb, a, p, k=-1):
     yb = int(yb)
     a = int(a)
     p = int(p)
+    k = int(k)
     
     # k is random number between 1 and p-1
     if k == -1:
         k = utils.get_random_number(1, p-1)
+        
     K = pow(yb, k, p)
+    
+    print("- Little k number: ", k)
+    print("- Big K: ", K)
     
     return [pow(a, k, p), (m * K) % p]
 
@@ -27,6 +32,9 @@ def decrypt(c1, c2, x, a, p):
     K = pow(c1, x, p)
     K_inv = utils.modInverse(K, p)
     
+    print("- Big K: ", K)
+    print("- Big K inverse: ", K_inv)
+    
     # Get m from Km mod p
     return (c2 * K_inv) % p
 
@@ -42,13 +50,19 @@ def crack(c1, c2,  yb, a, p, must_crack_b=False):
     for i in range(1, p):
         val = pow(a, i, p)
         if val == c1 and not must_crack_b:
+            # found k
             K = pow(yb, i, p)
             K_inv = utils.modInverse(K, p)
+            
             print("- Cracked k: ", i)
+            print("- Big K: ", K)
+            print("- Big K inverse: ", K_inv)
+            
             return (c2 * K_inv) % p
         elif val == yb:
-            # found Bob's private key
-            print("- Found Receiver's private key: ", i)
+            # found Receiver's private key
+            print("- Cracked Receiver's key: ", i)
+            
             return decrypt(c1, c2, i, a, p)
         
     print("Couldn't find k or receiver's private key")
