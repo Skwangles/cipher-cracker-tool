@@ -2,6 +2,10 @@ import utils
 
 def encrypt(m, yb, a, p, k=-1):
     """Encrypts the text using the key"""
+    m = int(m)
+    yb = int(yb)
+    a = int(a)
+    p = int(p)
     
     # k is random number between 1 and p-1
     if k == -1:
@@ -13,6 +17,11 @@ def encrypt(m, yb, a, p, k=-1):
 
 def decrypt(c1, c2, x, a, p):
     """Decrypts the cypher text using the y of Bob"""
+    c1 = int(c1)
+    c2 = int(c2)
+    x = int(x)
+    a = int(a)
+    p = int(p)
     
     # get K from a^kx mod p
     K = pow(c1, x, p)
@@ -24,7 +33,12 @@ def decrypt(c1, c2, x, a, p):
 
 def crack(c1, c2,  yb, a, p, must_crack_b=False):
     """Cracks the cypher text, returning the key and message"""
-    k = -1
+    c1 = int(c1)
+    c2 = int(c2)
+    yb = int(yb)
+    a = int(a)
+    p = int(p)
+    
     for i in range(1, p):
         val = pow(a, i, p)
         if val == c1 and not must_crack_b:
