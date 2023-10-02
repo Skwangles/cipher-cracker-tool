@@ -54,10 +54,8 @@ def find_p_q_d(n, e):
     return [p, q, d]
 
 
-def encrypt(m, n, e, p=None, q=None):                 
+def encrypt(m, n, e):                 
     """Encrypts the text using the key"""
-    if p or q:
-        return pow(m, e, p*q)
     return pow(m, e, n)
 
 

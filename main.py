@@ -33,7 +33,7 @@ def call_rsa(args):
         case "decrypt":
             print(cipher.decrypt(int(args.text), int(args.n), int(args.d)))
         case "encrypt":
-            print(cipher.encrypt(int(args.text), int(args.n), int(args.e), int(args.p), int(args.q))) #p and q are optional
+            print(cipher.encrypt(int(args.text), int(args.n), int(args.e))) #p and q are optional
         case "generate":
             print(cipher.generate_key(int(args.min), int(args.max)))
         case _:
@@ -168,6 +168,8 @@ def main():
             call_elgamal(prog_args)
         case "massey":
             call_massey_omura(prog_args)
+        case "rsa":
+            call_rsa(prog_args)
         case _:
             print("Unsupported cipher type:", prog_args.cipher)
             sys.exit(1)
