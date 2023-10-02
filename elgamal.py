@@ -22,34 +22,25 @@ def decrypt(c1, c2, x, a, p):
     return (c2 * K_inv) % p
 
 
-def crack(c1, c2, ya, yb, a, p, must_crack_b=False):
+def crack(c1, c2,  yb, a, p, must_crack_b=False):
     """Cracks the cypher text, returning the key and message"""
-    crackedB = False
     k = -1
     for i in range(1, p):
         val = pow(a, i, p)
         if val == c1 and not must_crack_b:
-            # found little k
-            k = i
-            break
+            K = pow(yb, i, p)
+            K_inv = utils.modInverse(K, p)
+            print("- Cracked k: ", i)
+            return (c2 * K_inv) % p
         elif val == yb:
             # found Bob's private key
-            k = i
-            crackedB = True
-            break
+            print("- Found Receiver's private key: ", i)
+            return decrypt(c1, c2, i, a, p)
         
-    if k == -1:
-        print("Couldn't " + ("find k or " if not must_crack_b else "") +"receiver's private key")
-        return "No key found"
+    print("Couldn't find k or receiver's private key")
+    return None
     
-    if crackedB:
-        print("Cracked receiver's private key: ", k)
-        return decrypt(c1, c2, k, a, p)
     
-    K = pow(yb, k, p)
-    K_inv = utils.modInverse(K, p)
-    print("Cracked k: ", k)
-    return (c2 * K_inv) % p
         
     
 
@@ -58,15 +49,33 @@ if __name__ == "__main__":
     
     print("El Gamal")
     print("--------")
+    
     m = 7
-    ya = 4
+    a = 5
+    k = 3
+    p = 23
+    b = 6
     yb = 8
-    a = 3
-    k=3
-    p = 17
+    
+    
+    # Q21 ii-iii) Numbers gained from the Assignment 2 question
+    # m = 17
+    # a = 5
+    # k = 2
+    # p = 23
+    
+    # b = 6
+    # yb = pow(a, b, p)
+    
     print("Encrypting message: ", m)
     print("Bob's public key: ", yb)
+    print("Shared prime: ", a)
+    print("Modulus: ", p)
+    print("Random number: ", k)
+    
     result = encrypt(m, yb, a, p, k)
     print("Encrypted message: ", result)
-    print("Decrypting message: ", decrypt(int(result[0]), int(result[1]), ya, a, p))
-    print("Cracking message: ", crack(int(result[0]), int(result[1]), ya, yb, a, p))    
+    print("Decrypting message: ", decrypt(int(result[0]), int(result[1]), b, a, p))
+    
+    print("Cracking message (most efficient): ", crack(2, 7, yb, a, p))    
+    print("Cracking message (force b): ", crack(2, 7, yb, a, p, must_crack_b=True))  
