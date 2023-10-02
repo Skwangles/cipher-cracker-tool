@@ -2,9 +2,10 @@ import random
 import math
 import utils
 import sympy
+from alive_progress import alive_bar
 
-RSA_PRIME_MAX = 100_000
-RSA_PRIME_MIN = 1000
+RSA_PRIME_MAX = 100_000_000
+RSA_PRIME_MIN = 100_000
 
 def generate_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
     p = sympy.randprime(min, max)
@@ -31,11 +32,17 @@ def find_p_q_d(n, e):
     d = 0
     
     # Find p and q - first check primes close to sqrt(n)
-    for i in range(int(math.sqrt(n)), 2, -2):
-        if n % i == 0:
-            p = i
-            q = n // i
-            break
+    sqrt_n = int(math.sqrt(n))
+    if sqrt_n % 2 == 0: # make sure sqrt_n is odd, so we can decrement by 2
+        sqrt_n += 1 
+        
+    with alive_bar(sqrt_n//2) as bar:
+        for i in range(sqrt_n, 2, -2):
+            if n % i == 0:
+                p = i
+                q = n // i
+                break
+            bar()
     
     # Find d
     fi_n = (p-1)*(q-1)
@@ -63,7 +70,7 @@ def crack(c, n, e):
     """Cracks the cypher text, returning the key"""
     val = find_p_q_d(n, e)
     if val == None:
-        return "Could not determine p, q, or d in a reasonable time - please use smaller numbers if you want to crack"
+        return "Could not determine p, q, or d"
     [p, q, d] = val
     print("p:", p)
     print("q:", q)
@@ -97,5 +104,4 @@ if __name__ == "__main__":
     
     # Crack a message
     print("Cracked:", crack(c, p*q, e))
-    
     
