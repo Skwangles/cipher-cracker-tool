@@ -54,6 +54,10 @@ def get_alphabet():
     alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     return alphabet
 
+def get_random_number(min=0, max=100):
+    """Returns a random number between min and max"""
+    return random.randint(min, max)
+
 def frequency_analysis(cipher_text):
     """Returns frequencies of each letter in a string"""   
     # Count each letter's frequency in the ciphertext
