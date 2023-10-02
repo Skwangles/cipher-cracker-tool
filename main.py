@@ -94,7 +94,7 @@ action_group.add_argument("--crack", "-c", action="store_const", const="crack", 
 # caesar - shift based key 0-26
 caesar_parser = individual_cipher_arg_parsers.add_parser("caesar", help="Caesar Cipher")
 caesar_parser.add_argument("-t","--text", required=True, help="*Text to encrypt/decrypt/crack")
-caesar_parser.add_argument("-s", "--shift", default=0, type=int, choices=range(-26, 27), help="Caesar shift ±(0-26)", type=int)
+caesar_parser.add_argument("-s", "--shift", default=0, type=int, choices=range(-26, 27), help="Caesar shift ±(0-26)")
 
 # rsa
 rsa_parser = individual_cipher_arg_parsers.add_parser("rsa", help="RSA Cipher")
