@@ -3,7 +3,7 @@ import math
 import utils
 import sympy
 
-RSA_PRIME_MAX = 10_000
+RSA_PRIME_MAX = 100_000
 RSA_PRIME_MIN = 1000
 
 def generate_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
@@ -42,12 +42,12 @@ def find_p_q_d(n, e):
     d = utils.modInverse(e, fi_n)
     
     if p == 0 or q == 0 or d == 0:
-        return "Could not find p, q, and d"
+        return None
 
     return [p, q, d]
 
 
-def encrypt(m, n, e, p, q):                 
+def encrypt(m, n, e, p=None, q=None):                 
     """Encrypts the text using the key"""
     if p or q:
         return pow(m, e, p*q)
@@ -61,7 +61,10 @@ def decrypt(c, n, d):
 
 def crack(c, n, e):
     """Cracks the cypher text, returning the key"""
-    [p,q, d] = find_p_q_d(n, e)
+    val = find_p_q_d(n, e)
+    if val == None:
+        return "Could not determine p, q, or d in a reasonable time - please use smaller numbers if you want to crack"
+    [p, q, d] = val
     print("p:", p)
     print("q:", q)
     print("d:", d)
@@ -72,19 +75,19 @@ if __name__ == "__main__":
     print("Running RSA")
     
     # Generate a key
-    [p, q, d] = generate_key()
+    val = generate_key()
+    if val == None:
+        print("Could not determine p, q, or d in a reasonable time - please use smaller numbers if you want to crack")
+        exit()
+    [p, q, d] = val
     print("p:", p)
     print("q:", q)
     print("d:", d)
     
-    # p = 5
-    # q = 11
-    # d = 27
-    
     e = utils.modInverse(d, (p-1)*(q-1))
     
     # Encrypt a message
-    m = 2
+    m = 1234
     print("message:", m)
     c = encrypt(m, p*q, e)
     print("Cipher text:", c)
