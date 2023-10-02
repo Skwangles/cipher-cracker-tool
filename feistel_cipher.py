@@ -19,9 +19,6 @@ def get_sub_key(key, round, block_size=16):
 
 def encrypt(text, key="", rounds=16):
     """Encrypts the text using the key"""
-    rounds = int(rounds)
-    key = str(key)
-    rounds = int(rounds)
   
     if not key or len(key) == 0:
         return "No key(s) provided"        
@@ -41,8 +38,6 @@ def encrypt(text, key="", rounds=16):
 
 def decrypt(cypher_text, key="", rounds=16):
     """Decrypts the cypher text using the key - cypher text must be a binary string"""
-    rounds = int(rounds)
-    key = str(key)
     
     if re.match("^[01]+$", cypher_text) is None:
         return "Cypher text is not a binary string"
