@@ -1,41 +1,38 @@
 from utils import get_english_percent
 
-def encrypt(text, key):
-    """Encrypts the text using the key"""
+def encrypt(text, key, shift_digits=False):
+    """Encrypts the text using the key. Optionally shift digits as well as letters"""
     
     encrypted = ""
     for char in text:
 
-        if char.isalnum():
-            #lowercase by default. also handle uppercase and digits 0-9
-            base_char = 'a'
+        if char.isalpha():
+            base_char = 'a' if char.islower() else 'A'
             set_length = 26
-
-            if char.isupper():
-                base_char = 'A'
-
-            elif char.isdigit():
-                base_char = '0'
-                set_length = 10
         
+        elif char.isdigit() and shift_digits:
+            base_char = '0'
+            set_length = 10
+        
+        if char.isalpha() or (char.isdigit() and shift_digits):
             offset = (ord(char) - ord(base_char) + int(key)) % set_length
             encrypted += chr(offset + ord(base_char))
-        
+
         #leave non-alphanumeric characters unchanged
         else: encrypted += char
-            
+
     return "'" + encrypted + "'" #surround in single quotes to show any whitespace at the end or start
 
 
-def decrypt(cipher_text, key):
+def decrypt(cipher_text, key, shift_digits=False):
     """Decrypts the cipher text using the key"""
 
     #encrypting with the negative key is the same as decrypting
-    return encrypt(cipher_text, -int(key)) 
+    return encrypt(cipher_text, -int(key), shift_digits) 
 
 
 #uses brute force and english word counting to sort the output by most probable to least probable decrypt key
-def crack(cipher_text):
+def crack(cipher_text, shift_digits=False):
     """Cracks the cipher text using brute force, returning all the possible texts and keys, sorted by number of matching english words"""
     
     #check for empty inputs
@@ -50,9 +47,9 @@ def crack(cipher_text):
     for key in range(1,set_length):
         #test decrypt with that key. clean up apostrophes in input if applicable
         if len(cipher_text) > 0 and cipher_text[0] == cipher_text[len(cipher_text)-1] == "'":
-            decrypted_text = decrypt(cipher_text[1:-1], key)[1:-1]
+            decrypted_text = decrypt(cipher_text[1:-1], key, shift_digits)[1:-1]
         else: 
-            decrypted_text = decrypt(cipher_text, key)[1:-1]
+            decrypted_text = decrypt(cipher_text, key, shift_digits)[1:-1]
 
         percentage_english = get_english_percent(decrypted_text)
         results.append((key, decrypted_text, percentage_english))
@@ -103,10 +100,14 @@ if __name__ == "__main__":
     Leese but their show, their substance still lives sweet.""", 5)))
 
     print("Test crack: no best result")
-    print(crack(encrypt("egg", 13)))
+    print(crack(encrypt("egg 1", 13)))
 
     print("Test crack: no english words")
     print(crack(encrypt("arst", -1)))
 
     print("Test crack: empty input")
     print(crack(encrypt("", 1)))
+
+    print("Test encrypt/decrypt: include digits")
+    print(encrypt("the fat cat sat on the mat 12345", 2, True))
+    print(decrypt("vjg hcv ecv ucv qp vjg ocv 34567", 2, True))
