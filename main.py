@@ -7,6 +7,7 @@ import caesar_cipher
 import rsa
 import simple_substitution
 import feistel_cipher
+import elgamal
 
 ### --- Cipher calls
 
@@ -58,6 +59,19 @@ def call_feistel(args):
             print(cipher.encrypt(args.text, args.key, args.rounds))
         case _:
             print("Unsupported operation:", args.action)
+
+def call_elgamal(args):
+    cipher = elgamal
+    match args.action.lower():
+        case "crack":
+            print(cipher.crack(args.text, args.text2, args.receiver, args.root, args.modulus))
+        case "decrypt":
+            print(cipher.decrypt(args.text, args.text2, args.private, args.root, args.modulus))
+        case "encrypt":
+            print(args)
+            print(cipher.encrypt(args.text, args.receiver, args.root, args.modulus, args.little_k if args.little_k else -1 ))
+        case _:
+            print("Unsupported operation:", args.action)
     
     
     
@@ -87,6 +101,17 @@ rsa_parser.add_argument("-t","--text", required=True, help="*Text to encrypt/dec
 rsa_parser.add_argument("-k", "--private", help="Private key")
 rsa_parser.add_argument("-p", "--public", help="Public key")
 
+# elgamal
+elgamal_parser = individual_cipher_arg_parsers.add_parser("elgamal", help="RSA Cipher")
+elgamal_parser.add_argument("-t", "-t1","--text", "--text1", required=True, help="Text to encrypt")
+elgamal_parser.add_argument("-t2","--text2", help="Text Km to decrypt (Decrypt/Crack)")
+elgamal_parser.add_argument("-k", "--little-k", help="Little k/random number (Encrypt optional)")
+elgamal_parser.add_argument("-y", "--receiver", help="Receiver's y value (Encrypt/Crack)")
+elgamal_parser.add_argument("-b", "-x", "--private", help="Receiver's private key (Decrypt)")
+elgamal_parser.add_argument("-a", "-r", "--root", required=True, help="Root value")
+elgamal_parser.add_argument("-p", "--modulus", required=True, help="Modulus value")
+
+
 # simple sub - text based key
 simple_parser = individual_cipher_arg_parsers.add_parser("simple", help="Simple Substitution Cipher")
 simple_parser.add_argument("-t","--text", required=True, help="*Text to encrypt/decrypt")
@@ -111,6 +136,8 @@ def main():
             call_simple_substitution(prog_args)
         case "feistel":
             call_feistel(prog_args)
+        case "elgamal":
+            call_elgamal(prog_args)
         case _:
             print("Unsupported cipher type:", prog_args.cipher)
             sys.exit(1)
