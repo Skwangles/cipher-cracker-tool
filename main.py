@@ -98,7 +98,7 @@ caesar_parser.add_argument("-s", "--shift", default=0, type=int, choices=range(-
 
 # rsa
 rsa_parser = individual_cipher_arg_parsers.add_parser("rsa", help="RSA Cipher")
-rsa_parser.add_argument("-t","--text", required=True, help="*Text to encrypt/decrypt")
+rsa_parser.add_argument("-t","--text", required=True, help="*Text to encrypt/decrypt", type=int)
 rsa_parser.add_argument("-k", "--private", help="Private key", type=int)
 rsa_parser.add_argument("-p", "--public", help="Public key", type=int)
 
@@ -115,13 +115,13 @@ elgamal_parser.add_argument("-p", "--modulus", required=True, help="Modulus valu
 
 # rsa
 massey_omura_parser = individual_cipher_arg_parsers.add_parser("massey", help="Massey-Omura cryptosystem")
-massey_omura_parser.add_argument("-t","--text", required=True, help="*Number to encrypt/decrypt")
-massey_omura_parser.add_argument("-p", "--prime", required=True, help="Prime number")
-massey_omura_parser.add_argument("-a", "-s", "--sender", help="Sender/Alice's key")
-massey_omura_parser.add_argument("-b", "-r","--receiver", help="Receiver/Bob's key")
-massey_omura_parser.add_argument("-1", "--step1", help="m^sender - used by crack")
-massey_omura_parser.add_argument("-2", "--step2", help="m^(sender*receiver) - used by crack")
-massey_omura_parser.add_argument("-3", "--step3", help="m^receiver - used by crack")
+massey_omura_parser.add_argument("-t","--text", required=True, help="*Number to encrypt/decrypt", type=int)
+massey_omura_parser.add_argument("-p", "--prime", required=True, help="Prime number", type=int)
+massey_omura_parser.add_argument("-a", "-s", "--sender", help="Sender/Alice's key", type=int)
+massey_omura_parser.add_argument("-b", "-r","--receiver", help="Receiver/Bob's key", type=int)
+massey_omura_parser.add_argument("-1", "--step1", help="m^sender - used by crack", type=int)
+massey_omura_parser.add_argument("-2", "--step2", help="m^(sender*receiver) - used by crack", type=int)
+massey_omura_parser.add_argument("-3", "--step3", help="m^receiver - used by crack", type=int)
 
 # simple sub - text based key
 simple_parser = individual_cipher_arg_parsers.add_parser("simple", help="Simple Substitution Cipher")
