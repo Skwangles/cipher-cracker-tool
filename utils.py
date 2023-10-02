@@ -8,6 +8,7 @@ def index_of_coincidence(input):
     len_alpha_input = 0
     for i in input:
         if str(i).isalpha():
+            i = str(i).upper()
             len_alpha_input += 1
             if i.upper() in letters:
                 letters[i] += 1
