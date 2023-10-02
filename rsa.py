@@ -26,7 +26,7 @@ def find_p_q_d(n, e):
     q = 0
     d = 0
     
-    # Find p and q
+    # Find p and q - first check primes close to sqrt(n)
     for i in range(int(math.sqrt(n)), 2, -2):
         if n % i == 0:
             p = i
