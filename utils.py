@@ -54,6 +54,10 @@ def get_alphabet():
     alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     return alphabet
 
+def get_random_number(min=0, max=100):
+    """Returns a random number between min and max"""
+    return random.randint(min, max)
+
 def frequency_analysis(cipher_text):
     """Returns frequencies of each letter in a string"""   
     # Count each letter's frequency in the ciphertext
@@ -71,3 +75,35 @@ def frequency_analysis(cipher_text):
     sorted_freq = ''.join(sorted_freq)
 
     return sorted_freq
+
+def modInverse(A, M):
+    # From https://www.geeksforgeeks.org/multiplicative-inverse-under-modulo-m/ - Daniel confirmed okay to use
+    m0 = M
+    y = 0
+    x = 1
+ 
+    if (M == 1):
+        return 0
+ 
+    while (A > 1):
+ 
+        # q is quotient
+        q = A // M
+ 
+        t = M
+ 
+        # m is remainder now, process
+        # same as Euclid's algo
+        M = A % M
+        A = t
+        t = y
+ 
+        # Update x and y
+        y = x - q * y
+        x = t
+ 
+    # Make x positive
+    if (x < 0):
+        x = x + m0
+ 
+    return x
