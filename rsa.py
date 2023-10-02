@@ -17,6 +17,10 @@ def generate_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
     e = 65537 # generally a good choice
     
     d = utils.modInverse(e, fi_n)
+
+    print("e:", e)
+    print("n:", p*q)
+    
     return [p, q, d]
 
 
@@ -39,12 +43,14 @@ def find_p_q_d(n, e):
     
     if p == 0 or q == 0 or d == 0:
         return "Could not find p, q, and d"
-    
+
     return [p, q, d]
 
 
-def encrypt(m, n, e):                 
+def encrypt(m, n, e, p, q):                 
     """Encrypts the text using the key"""
+    if p or q:
+        return pow(m, e, p*q)
     return pow(m, e, n)
 
 
