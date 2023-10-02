@@ -33,17 +33,60 @@ def xor_string_and_key(string, key):
             output += '1'
     return output
 
+
 def string_to_binary(string):
     """Converts a string to a binary equivalent of the ascii char values"""
     # Adapted from https://www.geeksforgeeks.org/python-convert-string-to-binary/
     # get int value of ascii char, then convert to binary with 'format' and left pad to 8 bits
     return "".join(str(format(ord(i), "b").zfill(8)) for i in string)
 
+
 def binary_to_string(binary):
     """Converts a binary string to a string of characters"""
     # Adapted from https://www.geeksforgeeks.org/convert-binary-to-string-using-python/
     # Split the string into 8 bit chunks, use int(<num>, 2) to get base 10 version of binary, then convert to ascii value    
     return "".join(chr(int(binary[i:i+8],2)) for i in range(0, len(binary), 8))
+
+def hex_to_string(hex):
+    """Converts a hex string to a string of characters"""
+    # Adapted from https://www.geeksforgeeks.org/convert-hexadecimal-value-string-ascii-value-string/
+    # Iterated forward 2 at a time, use int(<num>, 16) to get base 10 version of hex, then convert to ascii value with chr
+    
+    # Check if validly converts to ascii's length
+    if len(hex) % 2 != 0:
+        print("Called hex_to_string on non-even hex string")
+        return None
+    
+    # Check if valid hex
+    if not all(c in "0123456789abcdef" for c in hex):
+        print("Called hex_to_string on non-hex string")
+        return None
+    
+    output = ""
+    for i in range(0, len(hex), 2):
+        output += chr(int(hex[i:i+2],16))
+    return output 
+
+def string_to_hex(string):
+    """Converts a string to a hex equivalent of the ascii char values"""
+    # Adapted from https://www.geeksforgeeks.org/convert-a-string-to-hexadecimal-ascii-values/
+    # get int value of ascii char, then convert to hex with 'format'
+    output = ""
+    for i in string:
+        if ord(i) > 255:
+            print("Called string_to_hex on non-ascii string")
+            return None
+        
+        hexval = str(format(ord(i), "x"))
+        if len(hexval) == 1:
+            hexval = "0" + hexval
+            
+        output += hexval
+    return output
+        
+        
+    return "".join(str(format(ord(i), "x")) for i in string)
+
 
 def random_key(length=3):
     """Generates a random key of the given length"""
