@@ -31,7 +31,10 @@ def encrypt(text, key="", rounds=16):
     """Encrypts the text using the key"""
   
     if not key or len(key) == 0:
-        return "No key provided"        
+        return "No key provided"   
+    
+    print("Removing all non-alphanumeric characters from text")
+    text = re.sub("[^a-zA-Z0-9\s]+", "", text)
     
     bin = string_to_binary(text)
     
@@ -96,6 +99,7 @@ def f_func(text, key):
 
 def crack(cypher_text):
     """Cracks the cypher text, returning the key - cypher text must be a hex string"""
+    print("Note: If your cypher text is too small the key may be incorrect")
     print("Cracking the cypher text... If your key is longer than 4 characters you're screwed...")
     
     # 36^4 = 1,679,616 combinations, so no chance of cracking a key longer than 4 characters
@@ -113,10 +117,10 @@ def crack(cypher_text):
         print("Trying with " + str(i) + " rounds...")
         for key in generate_combinations(MAX_KEY_CRACK_LENGTH):
             decrypted = str(decrypt(cypher_text, key, i))
-            if decrypted.isalnum() and index_of_coincidence(decrypted) > 0.066:
+            if re.match("^[a-zA-Z0-9\s]*$", decrypted) and index_of_coincidence(decrypted) >= 0.066:
                 # Finish the loading bars
                 print("Done")
-                return "Key: " + key + ", Plain Text: " + str(decrypt(cypher_text, key, i))
+                return "Key: " + key + ", Plain Text: " + decrypted
                     
     return "No key found in the reasonable limits we've set - increase MAX_KEY_CRACK_LENGTH or MAX_ROUNDS"
 
@@ -127,8 +131,8 @@ if __name__ == "__main__":
     print("--------------")
     
     print("Encrypting 'Hello World' with key 'key' and 16 rounds")
-    key = "asuperlongkeyisnowused"
-    cypher_text = encrypt(text="imnotgoingtoencryptanything", key=key, rounds=16)
+    key = "hel"
+    cypher_text = encrypt(text="im not going to encrypt anything", key=key, rounds=16)
     print(cypher_text)
     print("------------------")
     print("Decrypting with key")
@@ -137,5 +141,3 @@ if __name__ == "__main__":
     print("Cracking")
     print(crack(cypher_text))
     
-    # Interestingly enough - I found a collision in the hash function used to generate the subkeys. 
-    # The key 'asuperlongkeyisnowused' and text 'imnotgoingtoencryptanything' collides with 'd80' both produce the same subkey.
