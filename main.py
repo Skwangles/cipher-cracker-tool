@@ -7,6 +7,7 @@ import caesar_cipher
 import rsa
 import simple_substitution
 import feistel_cipher
+import vigenere_cipher
 import elgamal
 import massey_omura
 
@@ -73,6 +74,18 @@ def call_elgamal(args):
             print(cipher.encrypt(int(args.text), int(args.receiver), int(args.root), int(args.modulus), int(args.little_k if args.little_k else -1) ))
         case _:
             print("Unsupported operation:", args.action)
+
+def call_vigenere(args):
+    cipher = vigenere_cipher
+    match args.action.lower():
+        case "crack":
+            print(cipher.crack(args.text))
+        case "decrypt":
+            print(cipher.decrypt(args.text, args.key))
+        case "encrypt":
+            print(cipher.encrypt(args.text, args.key))
+        case _:
+            print("Unsupported operation:", args.action)
     
     
     
@@ -135,6 +148,11 @@ feistel_parser.add_argument("-t","-b","--text", "--binary", required=True, dest=
 feistel_parser.add_argument("-k", "--key", default="abc123", help="Key - default: 'abc123' ")
 feistel_parser.add_argument("-r", "--rounds", default=16, help="# of rounds to run the feistel cipher for - default: 16", type=int)
 
+# vigenere - text based key
+vigenere_parser = individual_cipher_arg_parsers.add_parser("vigenere", help="Vigenere Cipher")
+vigenere_parser.add_argument("-t","--text", required=True, help="*Text to encrypt/decrypt")
+vigenere_parser.add_argument("-k", "--key", default="cars", help="Key - default: 'cars'")
+
 def main():
     prog_args = parser.parse_args()
 
@@ -146,6 +164,8 @@ def main():
             call_simple_substitution(prog_args)
         case "feistel":
             call_feistel(prog_args)
+        case "vigenere":
+            call_vigenere(prog_args)
         case "elgamal":
             call_elgamal(prog_args)
         case "massey":

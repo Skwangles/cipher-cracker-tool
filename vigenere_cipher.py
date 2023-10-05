@@ -6,6 +6,8 @@ import string
 ETAOIN = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
 # The alphabet is regular order.
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+REASONABLE_MAX_PERIOD = 10
+ENGLISH_IOC = 0.67
 
 def split_text_into_columns(cipher_text: str, period: int):
     """Split the characters into columns based on key period."""
@@ -21,12 +23,14 @@ def split_text_into_columns(cipher_text: str, period: int):
 
 def remove_spaces_punctuation(cipher_text: str):
     """Return cipher text without spaces and punctuation characters."""
-    return cipher_text.translate(str.maketrans("", "", string.punctuation)).replace(" ", "")
+    return cipher_text.translate(str.maketrans("", "", string.punctuation + "\n\t\s\r")).replace(" ", "")
 
 def find_key_period(cipher_text: str, max_period: int):
     """Get the likely key period based on index of coincidence averages."""
     # Remove punctuation and spaces
-    cipher_text = remove_spaces_punctuation(cipher_text)
+    if not cipher_text.isalpha():
+        cipher_text = remove_spaces_punctuation(cipher_text)
+        
     # Intialise variables
     ioc_highest = 0
     period = 0
@@ -106,6 +110,7 @@ def get_english_frequency_match(text: str):
 def encrypt(text: str, key: str):
     """Encrypts the text using key."""
     cipher_text = ""
+    key = generate_key_sequence(text, key)
 
     x = range(len(text))
     for i in x:
@@ -124,17 +129,18 @@ def encrypt(text: str, key: str):
 def decrypt(cipher_text: str, key: str):
     """Decrypts the cypher text using key."""
     original_text = ""
+    key = generate_key_sequence(text, key)
 
     x = range(len(cipher_text))
     for i in x:
         m = ""
         # Decrypt a letter character
-        if text[i].isalpha():
+        if cipher_text[i].isalpha():
             char = ord(cipher_text[i].upper())
             k = ord(key[i].upper())
             m = chr(((char - k) % 26) + ord('A'))
         else:
-            m = text[i]
+            m = cipher_text[i]
         # Append character
         original_text += m
     return original_text
@@ -197,6 +203,8 @@ def crack(cipher_text):
             "text": decrypted_text,
             "ioc": ioc,
         })
+        if ioc >= ENGLISH_IOC:
+            return key
 
     # Key with the highest index of coincidence is the likely the correct key
     for k in keys:
@@ -236,19 +244,19 @@ if __name__ == "__main__":
           "\nInput text:\n" + text + "\n"
           "\nKey:\n'" + key + "'\n")
     
-    key_seq = generate_key_sequence(text, key)
-    print("\n---------------------" + 
-          "\nGENERATE KEY SEQUENCE" +
-          "\n---------------------\n" + 
-          "\nKey Sequence:\n'" + key_seq + "'\n")
+    # key_seq = generate_key_sequence(text, key)
+    # print("\n---------------------" + 
+    #       "\nGENERATE KEY SEQUENCE" +
+    #       "\n---------------------\n" + 
+    #       "\nKey Sequence:\n'" + key_seq + "'\n")
 
-    cipher_text = encrypt(text, key_seq)
+    cipher_text = encrypt(text, key)
     print("\n----------" + 
           "\nENCRYPTION" +
           "\n----------\n" +
           "\nCipher Text:\n" + cipher_text + "\n")
 
-    original_text = decrypt(cipher_text, key_seq)
+    original_text = decrypt(cipher_text, key)
     print("\n----------" + 
           "\nDECRYPTION" +
           "\n----------\n" +

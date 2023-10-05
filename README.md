@@ -18,6 +18,9 @@ Caesar Cipher example:
 Simple Cipher example:  
 `python main.py --encrypt simple -t -k abcdefghijklmnopqrstuv` (Key must be 26 letters)
 
+Vigenere Cipher example:
+`python main.py --encrypt vigenere -t test -k cars`
+
 ## Git etiquette
 
 Feature branches, then merge into main - please do not directly commit main if you can avoid it.
@@ -29,7 +32,7 @@ _May change after seeing lectures_
 - RSA
 - Simple Substitution
 - Caesar Cipher
-- _4th is undecided_
+- Vigenere Cipher
 
 ## Assignment Description
 
