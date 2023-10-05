@@ -8,6 +8,8 @@ import rsa
 import simple_substitution
 import feistel_cipher
 import vigenere_cipher
+import elgamal
+import massey_omura
 
 ### --- Cipher calls
 
@@ -16,23 +18,23 @@ def call_caesar(args):
     cipher = caesar_cipher
     match args.action.lower():
         case "crack":
-            print(cipher.crack(args.text))
+            print(cipher.crack(str(args.text), bool(args.digits)))
         case "decrypt":
-            print(cipher.decrypt(args.text, args.shift))
+            print(cipher.decrypt(str(args.text), int(args.shift), bool(args.digits)))
         case "encrypt":
-            print(cipher.encrypt(args.text, args.shift))
+            print(cipher.encrypt(str(args.text), int(args.shift), bool(args.digits)))
         case _:
             print("Unsupported operation:", args.action)
-    
-def call_rsa(args):
-    cipher = rsa
+            
+def call_massey_omura(args):
+    cipher = massey_omura
     match args.action.lower():
         case "crack":
-            print(cipher.crack(args.text))
+            print(cipher.crack(int(args.step1), int(args.step2), int(args.step3), int(args.prime)))
         case "decrypt":
-            print(cipher.decrypt(args.text, args.private))
+            print(cipher.decrypt(int(args.text), int(args.receiver), int(args.prime)))
         case "encrypt":
-            print(cipher.encrypt(args.text, args.public))
+            print(cipher.encrypt(int(args.text), int(args.sender), int(args.receiver), int(args.prime)))
         case _:
             print("Unsupported operation:", args.action)
 
@@ -40,11 +42,11 @@ def call_simple_substitution(args):
     cipher = simple_substitution
     match args.action.lower():
         case "crack":
-            print(cipher.crack(args.text))
+            print(cipher.crack(str(args.text)))
         case "decrypt":
-            print(cipher.decrypt(args.text, args.key))
+            print(cipher.decrypt(str(args.text), str(args.key)))
         case "encrypt":
-            print(cipher.encrypt(args.text, args.key))
+            print(cipher.encrypt(str(args.text), str(args.key)))
         case _:
             print("Unsupported operation:", args.action)
     
@@ -52,11 +54,24 @@ def call_feistel(args):
     cipher = feistel_cipher
     match args.action.lower():
         case "crack":
-            print(cipher.crack(args.text))
+            print(cipher.crack(str(args.text)))
         case "decrypt":
-            print(cipher.decrypt(args.text, args.key, args.rounds))
+            print(cipher.decrypt(str(args.text), str(args.key), int(args.rounds)))
         case "encrypt":
-            print(cipher.encrypt(args.text, args.key, args.rounds))
+            print(cipher.encrypt(str(args.text), str(args.key), int(args.rounds)))
+        case _:
+            print("Unsupported operation:", args.action)
+
+def call_elgamal(args):
+    cipher = elgamal
+    match args.action.lower():
+        case "crack":
+            print(cipher.crack(int(args.text), int(args.text2), int(args.receiver), int(args.root), int(args.modulus)))
+        case "decrypt":
+            print(cipher.decrypt(int(args.text), int(args.text2), int(args.private), int(args.root), int(args.modulus)))
+        case "encrypt":
+            print(args)
+            print(cipher.encrypt(int(args.text), int(args.receiver), int(args.root), int(args.modulus), int(args.little_k if args.little_k else -1) ))
         case _:
             print("Unsupported operation:", args.action)
 
@@ -93,12 +108,34 @@ action_group.add_argument("--crack", "-c", action="store_const", const="crack", 
 caesar_parser = individual_cipher_arg_parsers.add_parser("caesar", help="Caesar Cipher")
 caesar_parser.add_argument("-t","--text", required=True, help="*Text to encrypt/decrypt/crack")
 caesar_parser.add_argument("-s", "--shift", default=0, type=int, choices=range(-26, 27), help="Caesar shift ±(0-26)")
+caesar_parser.add_argument("-d", "--digits", action="store_true", help="Shift the digits in addition to characters")
 
 # rsa
 rsa_parser = individual_cipher_arg_parsers.add_parser("rsa", help="RSA Cipher")
-rsa_parser.add_argument("-t","--text", required=True, help="*Text to encrypt/decrypt")
-rsa_parser.add_argument("-k", "--private", help="Private key")
-rsa_parser.add_argument("-p", "--public", help="Public key")
+rsa_parser.add_argument("-t","--text", required=True, help="*Text to encrypt/decrypt", type=int)
+rsa_parser.add_argument("-k", "--private", help="Private key", type=int)
+rsa_parser.add_argument("-p", "--public", help="Public key", type=int)
+
+# elgamal
+elgamal_parser = individual_cipher_arg_parsers.add_parser("elgamal", help="RSA Cipher")
+elgamal_parser.add_argument("-t", "-t1","--text", "--text1", required=True, help="Text to encrypt", type=int)
+elgamal_parser.add_argument("-t2","--text2", help="Text Km to decrypt (Decrypt/Crack)", type=int)
+elgamal_parser.add_argument("-k", "--little-k", help="Little k/random number (Encrypt optional)", type=int)
+elgamal_parser.add_argument("-y", "--receiver", help="Receiver's y value (Encrypt/Crack)", type=int)
+elgamal_parser.add_argument("-b", "-x", "--private", help="Receiver's private key (Decrypt)", type=int)
+elgamal_parser.add_argument("-a", "-r", "--root", required=True, help="Root value", type=int)
+elgamal_parser.add_argument("-p", "--modulus", required=True, help="Modulus value", type=int)
+
+
+# rsa
+massey_omura_parser = individual_cipher_arg_parsers.add_parser("massey", help="Massey-Omura cryptosystem")
+massey_omura_parser.add_argument("-t","--text", required=True, help="*Number to encrypt/decrypt", type=int)
+massey_omura_parser.add_argument("-p", "--prime", required=True, help="Prime number", type=int)
+massey_omura_parser.add_argument("-a", "-s", "--sender", help="Sender/Alice's key", type=int)
+massey_omura_parser.add_argument("-b", "-r","--receiver", help="Receiver/Bob's key", type=int)
+massey_omura_parser.add_argument("-1", "--step1", help="m^sender - used by crack", type=int)
+massey_omura_parser.add_argument("-2", "--step2", help="m^(sender*receiver) - used by crack", type=int)
+massey_omura_parser.add_argument("-3", "--step3", help="m^receiver - used by crack", type=int)
 
 # simple sub - text based key
 simple_parser = individual_cipher_arg_parsers.add_parser("simple", help="Simple Substitution Cipher")
@@ -121,8 +158,6 @@ def main():
 
     cipher_type = None
     match prog_args.cipher.lower():
-        case "rsa":
-            call_rsa(prog_args)
         case "caesar":
             call_caesar(prog_args)
         case "simple":
@@ -131,6 +166,10 @@ def main():
             call_feistel(prog_args)
         case "vigenere":
             call_vigenere(prog_args)
+        case "elgamal":
+            call_elgamal(prog_args)
+        case "massey":
+            call_massey_omura(prog_args)
         case _:
             print("Unsupported cipher type:", prog_args.cipher)
             sys.exit(1)
