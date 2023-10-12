@@ -1,5 +1,7 @@
 import random, nltk
 from nltk.corpus import words 
+import sympy 
+
 
 def index_of_coincidence(input):
     """Calculates the IoC"""
@@ -105,3 +107,26 @@ def modInverse(A, M):
         return pow(A, -1, M)
     except ValueError:
         raise ValueError("No modular inverse for {} and {}".format(A, M))
+
+def calc_e_d(p, q, e=11):
+    
+    fi_n = (p-1)*(q-1)
+    
+    if e > fi_n:
+        print("fi_n is too small for default e, generating a new e")
+        e = sympy.randprime(2, fi_n)
+        
+    d = modInverse(e, fi_n)
+    return [e, d]
+
+
+def get_primes(min, max, is_weak=False):
+    p = sympy.randprime(min, max)
+    q = 0
+    if is_weak:
+        q = sympy.nextprime(sympy.nextprime(p))
+    else:
+        q = sympy.randprime(min, max)
+        while p == q:
+            q = sympy.randprime(min, max)
+    return [p, q]
