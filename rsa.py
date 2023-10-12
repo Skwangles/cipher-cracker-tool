@@ -11,25 +11,19 @@ RSA_PRIME_MAX = 4_294_967_296 # python's sqrt only works up to this number
 RSA_PRIME_MIN = 100_000_000
 
 def generate_weak_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
-    p = sympy.randprime(min, max)
-    q = sympy.nextprime(sympy.nextprime(p))
-    while p == q:
-        q = sympy.randprime(min, max)
+    """Generates a weak key, where p and q are close together"""
+    [p, q] = utils.get_primes(min, max, True)
+    [e, d] = utils.calc_e_d(p, q)
     
-    fi_n = (p-1)*(q-1)
-    
-    # small enough so that m^e is < n  - ideally 65537
-    e = 11
-    if e > fi_n:
-        print("fi_n is too small for default e, generating a new e")
-        e = sympy.randprime(2, fi_n)
-        
-    d = utils.modInverse(e, fi_n)
+    return [p, q, d, e, p*q]
 
-    print("e:", e)
-    print("n:", p*q)
+
+def generate_strong_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
+    [p,q] = utils.get_primes(min, max, False)
+    [e, d] = utils.calc_e_d(p, q)
     
-    return [p, q, d]
+    return [p, q, d, e, p*q]
+
 
 def find_prime_parallel(n):
     result_queue = Queue()
@@ -112,26 +106,29 @@ if __name__ == "__main__":
     print("Running RSA")
     
     # Generate a key
+    # val = generate_strong_key()  #--- test bruteforce
     val = generate_weak_key()
     if val == None:
         print("Could not determine p, q, or d in a reasonable time - please use smaller numbers if you want to crack")
         exit()
-    [p, q, d] = val
+    [p, q, d, e, n] = val
+    
+    print("--- Generated Values ---")
+    print("n:", n)
+    print("e:", e)
     print("p:", p)
     print("q:", q)
     print("d:", d)
     
-    e = utils.modInverse(d, (p-1)*(q-1))
-    
     # Encrypt a message
     m = 12
     print("message:", m)
-    c = encrypt(m, p*q, e)
+    c = encrypt(m, n, e)
     print("Cipher text:", c)
     
     # Decrypt a message
-    print("Decrypted:", decrypt(c, p*q, d))
+    print("Decrypted:", decrypt(c, n, d))
     
     # Crack a message
-    print("Cracked:", crack(c, p*q, e))
+    print("Cracked:", crack(c, n, e))
     
