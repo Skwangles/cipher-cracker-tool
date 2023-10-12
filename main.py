@@ -130,8 +130,6 @@ rsa_parser.add_argument("-t","--text", help="Text to encrypt/decrypt", type=int)
 rsa_parser.add_argument("-n", "--n", help="N value from p*q (Encrypt/Decrypt/Crack)", type=int)
 rsa_parser.add_argument("-e", "--e", help="E value (inverse of d) (Encrypt/Crack)", type=int)
 rsa_parser.add_argument("-d", "--d", help="D value (Private) (Decrypt)", type=int)
-rsa_parser.add_argument("-p", "--p", help="P value (Encrypt - not required if N provided)", type=int)
-rsa_parser.add_argument("-q", "--q", help="Q value (Encrypt - not required if N provided)", type=int)
 rsa_parser.add_argument("--min", help="Minimum prime value for key generation", type=int)
 rsa_parser.add_argument("--max", help="Maximum prime value for key generation", type=int)
 
