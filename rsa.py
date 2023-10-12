@@ -82,6 +82,10 @@ def find_p_q_d(n, e):
 
 def encrypt(m, n, e):                 
     """Encrypts the text using the key"""
+    if pow(m, e) > n:
+        # m^e cannot be larger than N, otherwise it will lose information
+        raise ValueError("Message is too long to encrypt with this key")
+    
     return pow(m, e, n)
 
 
