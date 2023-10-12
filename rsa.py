@@ -2,12 +2,13 @@ import random
 import math
 import utils
 import sympy
-import threading
+from multiprocessing import Process, Queue
+import concurrent.futures
 from alive_progress import alive_bar
 import rsa_attacks as attacks
 
-RSA_PRIME_MAX = 100_000_000_000_000_000_000
-RSA_PRIME_MIN = 100_000_000_000_000
+RSA_PRIME_MAX = 4_294_967_296 # python's sqrt only works up to this number
+RSA_PRIME_MIN = 100_000_000
 
 def generate_weak_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
     p = sympy.randprime(min, max)
@@ -17,12 +18,12 @@ def generate_weak_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
     
     fi_n = (p-1)*(q-1)
     
-    e = 11 # small enough so that m^e is < n  - ideally 65537
+    # small enough so that m^e is < n  - ideally 65537
+    e = 11
     if e > fi_n:
         print("fi_n is too small for default e, generating a new e")
         e = sympy.randprime(2, fi_n)
         
-    
     d = utils.modInverse(e, fi_n)
 
     print("e:", e)
@@ -30,7 +31,29 @@ def generate_weak_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
     
     return [p, q, d]
 
+def find_prime_parallel(n):
+    result_queue = Queue()
 
+    # multiprocess the attacks
+    processes = [Process(target=attacks.fermat, args=(n, result_queue)), Process(target=attacks.bruteforce, args=(n, result_queue))]
+
+    for process in processes:
+        process.start()
+
+    # wait for a result from any of the processes
+    result = result_queue.get()
+
+    while result is None:
+        if not any(process.is_alive() for process in processes):
+            raise Exception("No result found, all attacks exhausted...")
+        result = result_queue.get()
+        
+    # solution is found, don't need to continue more attacks
+    for process in processes:
+        if process.is_alive():
+            process.terminate()
+            
+    return result
 
 
 def find_p_q_d(n, e):
@@ -45,8 +68,7 @@ def find_p_q_d(n, e):
     if fdb != None:
         [p, q] = fdb
     else:
-        print("Could not factorise using factordb, trying fermats")
-        [p, q] = attacks.FermatFactors(int(n))
+        [p, q] = find_prime_parallel(n)
     
             
     # Find d
@@ -57,6 +79,8 @@ def find_p_q_d(n, e):
         return None
 
     return [p, q, d]
+
+
 
 
 def encrypt(m, n, e):                 
@@ -101,7 +125,7 @@ if __name__ == "__main__":
     e = utils.modInverse(d, (p-1)*(q-1))
     
     # Encrypt a message
-    m = 1234
+    m = 12
     print("message:", m)
     c = encrypt(m, p*q, e)
     print("Cipher text:", c)
