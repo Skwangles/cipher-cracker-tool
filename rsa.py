@@ -76,7 +76,6 @@ def find_p_q_d(n, e):
     return [p, q, d]
 
 
-
 def encrypt(m, n, e):                 
     """Encrypts the text using the key"""
     return pow(m, e, n)
@@ -123,9 +122,6 @@ if __name__ == "__main__":
     # Decrypt a message
     print("Decrypted:", decrypt(c, p*q, d))
     
-
     # Crack a message
     print("Cracked:", crack(c, p*q, e))
     
-    
-
