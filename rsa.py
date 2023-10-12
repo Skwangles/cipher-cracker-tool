@@ -4,6 +4,7 @@ import utils
 import sympy
 import threading
 from alive_progress import alive_bar
+import rsa_attacks as attacks
 
 RSA_PRIME_MAX = 100_000_000_000_000_000_000
 RSA_PRIME_MIN = 100_000_000_000_000
@@ -29,34 +30,7 @@ def generate_weak_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
     
     return [p, q, d]
 
-def FermatFactors(n):
-    
-    
-    # if n%2 ==0 then return the factors
-    if n % 2 == 0:
-        return str(n // 2) + ", 2"
-     
-    # find the square root
-    a = math.ceil(math.sqrt(n))
-     
-    # if the number is a perfect square
-    if a * a == n:
-        return [a, a]
-     
-    # else perform factorisation
-    while True:
-        b1 = a * a - n
-        
-        b = math.floor(math.sqrt(b1))
-         
-        if b * b == b1:
-            break
-        else:
-            a += 1
-     
-    return [int(a - b), int(a + b)]
-        
-    
+
 
 
 def find_p_q_d(n, e):
