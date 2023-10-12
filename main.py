@@ -36,7 +36,7 @@ def call_rsa(args):
         case "encrypt":
             print(cipher.encrypt(int(args.text), int(args.n), int(args.e))) #p and q are optional
         case "generate":
-            print(cipher.generate_key(int(args.min), int(args.max)))
+            print(cipher.generate_weak_key(int(args.min), int(args.max)))
         case _:
             print("Unsupported operation:", args.action)
             

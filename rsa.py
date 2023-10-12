@@ -8,15 +8,15 @@ from alive_progress import alive_bar
 RSA_PRIME_MAX = 100_000_000_000_000_000_000
 RSA_PRIME_MIN = 100_000_000_000_000
 
-def generate_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
+def generate_weak_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
     p = sympy.randprime(min, max)
-    q = sympy.randprime(min, max)
+    q = sympy.nextprime(sympy.nextprime(p))
     while p == q:
         q = sympy.randprime(min, max)
     
     fi_n = (p-1)*(q-1)
     
-    e = 65537 # generally a good choice
+    e = 11 # generally a good choice
     if e > fi_n:
         print("fi_n is too small for default e, generating a new e")
         e = sympy.randprime(2, fi_n)
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     print("Running RSA")
     
     # Generate a key
-    val = generate_key()
+    val = generate_weak_key()
     if val == None:
         print("Could not determine p, q, or d in a reasonable time - please use smaller numbers if you want to crack")
         exit()
