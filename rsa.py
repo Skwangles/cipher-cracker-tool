@@ -64,7 +64,6 @@ def find_p_q_d(n, e):
     d = 0
 
     fdb = attacks.factordb_shortcut(n)
-    fdb = None
     if fdb != None:
         [p, q] = fdb
     else:
