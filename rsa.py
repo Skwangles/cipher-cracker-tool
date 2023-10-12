@@ -16,7 +16,7 @@ def generate_weak_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
     
     fi_n = (p-1)*(q-1)
     
-    e = 11 # generally a good choice
+    e = 11 # small enough so that m^e is < n  - ideally 65537
     if e > fi_n:
         print("fi_n is too small for default e, generating a new e")
         e = sympy.randprime(2, fi_n)
