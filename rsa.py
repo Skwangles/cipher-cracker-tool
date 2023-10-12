@@ -17,6 +17,10 @@ def generate_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
     fi_n = (p-1)*(q-1)
     
     e = 65537 # generally a good choice
+    if e > fi_n:
+        print("fi_n is too small for default e, generating a new e")
+        e = sympy.randprime(2, fi_n)
+        
     
     d = utils.modInverse(e, fi_n)
 
