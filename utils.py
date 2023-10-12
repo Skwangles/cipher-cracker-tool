@@ -101,4 +101,7 @@ def frequency_analysis(cipher_text):
     return sorted_freq
 
 def modInverse(A, M):
-    return pow(A, -1, M)
+    try:
+        return pow(A, -1, M)
+    except ValueError:
+        raise ValueError("No modular inverse for {} and {}".format(A, M))
