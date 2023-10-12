@@ -3,7 +3,7 @@ import os
 from math import ceil, sqrt
 
 def fermat(n, result_queue): 
-    """Fermat's factorisation method"""
+    """Fermat's factorisation method - https://en.wikipedia.org/wiki/Fermat%27s_factorization_method"""
 
     if n <= 0:
         raise Exception("n must be greater than 0")
@@ -27,7 +27,8 @@ def fermat(n, result_queue):
             break
         else:
             a += 1
-            
+    
+    print("Fermat factorization method success!")
     result_queue.put([int(a-b), int(a + b)])
         
 
@@ -38,9 +39,10 @@ def factordb_shortcut(n):
     match f.get_status():
         case'FF':
             # 'fully factored'
+            print("FactorDB method success!")
             return f.get_factor_list()
         case _:
-            print("Not fully factored")
+            print("Not fully factored:" + f.get_status() + " - continuing...")
             return None
    
 
@@ -74,6 +76,7 @@ def bruteforce(n, result_queue):
             result_queue.put(None)
             return
         if primes != []:
+            print("Bruteforce method success!")
             result_queue.put(primes)
             return
         
