@@ -2,10 +2,11 @@ import random
 import math
 import utils
 import sympy
+import threading
 from alive_progress import alive_bar
 
-RSA_PRIME_MAX = 100_000_000
-RSA_PRIME_MIN = 100_000
+RSA_PRIME_MAX = 100_000_000_000_000_000_000
+RSA_PRIME_MIN = 100_000_000_000_000
 
 def generate_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
     p = sympy.randprime(min, max)
@@ -24,26 +25,47 @@ def generate_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
     
     return [p, q, d]
 
+def FermatFactors(n):
+    
+    
+    # if n%2 ==0 then return the factors
+    if n % 2 == 0:
+        return str(n // 2) + ", 2"
+     
+    # find the square root
+    a = math.ceil(math.sqrt(n))
+     
+    # if the number is a perfect square
+    if a * a == n:
+        return [a, a]
+     
+    # else perform factorisation
+    while True:
+        b1 = a * a - n
+        
+        b = math.floor(math.sqrt(b1))
+         
+        if b * b == b1:
+            break
+        else:
+            a += 1
+     
+    return [int(a - b), int(a + b)]
+        
+    
+
 
 def find_p_q_d(n, e):
     """Finds p, q, and d given n and e"""
+    
     p = 0
     q = 0
     d = 0
-    
-    # Find p and q - first check primes close to sqrt(n)
-    sqrt_n = int(math.sqrt(n))
-    if sqrt_n % 2 == 0: # make sure sqrt_n is odd, so we can decrement by 2
-        sqrt_n += 1 
-        
-    with alive_bar(sqrt_n//2) as bar:
-        for i in range(sqrt_n, 2, -2):
-            if n % i == 0:
-                p = i
-                q = n // i
-                break
-            bar()
-    
+
+    #fermats_thread = threading.Thread(target=fermats_factorisation, args=(n,))
+
+    [p, q] = FermatFactors(int(n))
+            
     # Find d
     fi_n = (p-1)*(q-1)
     d = utils.modInverse(e, fi_n)
@@ -52,6 +74,7 @@ def find_p_q_d(n, e):
         return None
 
     return [p, q, d]
+
 
 
 def encrypt(m, n, e):                 
@@ -100,6 +123,9 @@ if __name__ == "__main__":
     # Decrypt a message
     print("Decrypted:", decrypt(c, p*q, d))
     
+
     # Crack a message
     print("Cracked:", crack(c, p*q, e))
     
+    
+
