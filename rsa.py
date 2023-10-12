@@ -40,9 +40,14 @@ def find_p_q_d(n, e):
     q = 0
     d = 0
 
-    #fermats_thread = threading.Thread(target=fermats_factorisation, args=(n,))
-
-    [p, q] = FermatFactors(int(n))
+    fdb = attacks.factordb_shortcut(n)
+    fdb = None
+    if fdb != None:
+        [p, q] = fdb
+    else:
+        print("Could not factorise using factordb, trying fermats")
+        [p, q] = attacks.FermatFactors(int(n))
+    
             
     # Find d
     fi_n = (p-1)*(q-1)
