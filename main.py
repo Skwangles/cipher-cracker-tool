@@ -23,6 +23,8 @@ def call_caesar(args):
             print(cipher.decrypt(str(args.text), int(args.shift), bool(args.digits)))
         case "encrypt":
             print(cipher.encrypt(str(args.text), int(args.shift), bool(args.digits)))
+        case "generate":
+            print("This cipher does not offer generating keys")
         case _:
             print("Unsupported operation:", args.action)
             
@@ -49,6 +51,8 @@ def call_massey_omura(args):
             print(cipher.decrypt(int(args.text), int(args.receiver), int(args.prime)))
         case "encrypt":
             print(cipher.encrypt(int(args.text), int(args.sender), int(args.receiver), int(args.prime)))
+        case "generate":
+            print("This cipher does not offer generating keys")
         case _:
             print("Unsupported operation:", args.action)
 
@@ -61,6 +65,8 @@ def call_simple_substitution(args):
             print(cipher.decrypt(str(args.text), str(args.key)))
         case "encrypt":
             print(cipher.encrypt(str(args.text), str(args.key)))
+        case "generate":
+            print("This cipher does not offer generating keys")
         case _:
             print("Unsupported operation:", args.action)
     
@@ -73,6 +79,8 @@ def call_feistel(args):
             print(cipher.decrypt(str(args.text), str(args.key), int(args.rounds)))
         case "encrypt":
             print(cipher.encrypt(str(args.text), str(args.key), int(args.rounds)))
+        case "generate":
+            print("This cipher does not offer generating keys")
         case _:
             print("Unsupported operation:", args.action)
 
@@ -85,6 +93,8 @@ def call_elgamal(args):
             print(cipher.decrypt(int(args.text), int(args.text2), int(args.private), int(args.root), int(args.modulus)))
         case "encrypt":
             print(cipher.encrypt(int(args.text), int(args.receiver), int(args.root), int(args.modulus), int(args.little_k if args.little_k else -1) ))
+        case "generate":
+            print("This cipher does not offer generating keys")
         case _:
             print("Unsupported operation:", args.action)
 
@@ -97,6 +107,8 @@ def call_vigenere(args):
             print(cipher.decrypt(args.text, args.key))
         case "encrypt":
             print(cipher.encrypt(args.text, args.key))
+        case "generate":
+            print("This cipher does not offer generating keys")
         case _:
             print("Unsupported operation:", args.action)
     
