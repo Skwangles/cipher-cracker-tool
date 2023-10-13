@@ -1,5 +1,7 @@
 import random, nltk
 from nltk.corpus import words 
+import sympy 
+
 
 def index_of_coincidence(input):
     """Calculates the IoC"""
@@ -101,33 +103,30 @@ def frequency_analysis(cipher_text):
     return sorted_freq
 
 def modInverse(A, M):
-    # From https://www.geeksforgeeks.org/multiplicative-inverse-under-modulo-m/ - Daniel confirmed okay to use
-    m0 = M
-    y = 0
-    x = 1
- 
-    if (M == 1):
-        return 0
- 
-    while (A > 1):
- 
-        # q is quotient
-        q = A // M
- 
-        t = M
- 
-        # m is remainder now, process
-        # same as Euclid's algo
-        M = A % M
-        A = t
-        t = y
- 
-        # Update x and y
-        y = x - q * y
-        x = t
- 
-    # Make x positive
-    if (x < 0):
-        x = x + m0
- 
-    return x
+    try:
+        return pow(A, -1, M)
+    except ValueError:
+        raise ValueError("No modular inverse for {} and {}".format(A, M))
+
+def calc_e_d(p, q, e=11):
+    
+    fi_n = (p-1)*(q-1)
+    
+    if e > fi_n:
+        print("fi_n is too small for default e, generating a new e")
+        e = sympy.randprime(2, fi_n)
+        
+    d = modInverse(e, fi_n)
+    return [e, d]
+
+
+def get_primes(min, max, is_weak=False):
+    p = sympy.randprime(min, max)
+    q = 0
+    if is_weak:
+        q = sympy.nextprime(sympy.nextprime(p))
+    else:
+        q = sympy.randprime(min, max)
+        while p == q:
+            q = sympy.randprime(min, max)
+    return [p, q]
