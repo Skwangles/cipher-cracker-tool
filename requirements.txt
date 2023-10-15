@@ -1,1 +1,4 @@
 nltk
+alive_progress
+sympy
+factordb-pycli
