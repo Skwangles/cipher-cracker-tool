@@ -29,10 +29,13 @@ Feature branches, then merge into main - please do not directly commit main if y
 
 _May change after seeing lectures_
 
-- RSA
-- Simple Substitution
-- Caesar Cipher
-- Vigenere Cipher
+- Caesar cypher;
+- Simple Substitution;
+- Vigenere cypher;
+- Feistel cypher;
+- Massey-Omura;
+- R.S.A.;
+- ElGamal
 
 ## Assignment Description
 
