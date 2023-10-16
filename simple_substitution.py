@@ -243,7 +243,41 @@ def addGuessesToMap(root_map, single_map):
     return intersection
 
 
+EARLY_EXIT = 80 # accept 80% to avoid falling into brute force
 
+def hill_climb_undecided(mapping, cypher_text):
+    non_empty = filter(lambda x: len(x[1]) > 1, mapping.items())
+    non_solved = sorted(non_empty, key=lambda x: len(x[1]))
+    
+    if len(non_solved) == 0:
+        return mapping
+    
+    letter, possible = non_solved[0]
+    
+    print("Hill climbing", letter, "with", len(possible), "possibilities")
+    best_match = None
+    best_match_percent = -1
+
+    for guess in possible:
+        print("Guessing", letter, "is", guess)
+        new_mapping = collapse_solved_letters(addGuessesToMap(mapping, {letter: [guess]}))
+        decrypted = apply_mapping_to_text(cypher_text, new_mapping)
+        percent = get_english_percent(decrypted)
+        print(percent)
+        if percent > best_match_percent:
+            best_match = new_mapping
+            best_match_percent = percent
+            if percent > EARLY_EXIT:
+                print("Early exit")
+                return best_match
+                
+    if best_match_percent == -1:
+        print("No matches found")
+        return mapping
+    return hill_climb_undecided(best_match, cypher_text)
+
+
+ 
 
 
 # store the set of words and what they look like globally so we dont have to spend ages getting them each time
