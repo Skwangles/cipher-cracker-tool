@@ -117,7 +117,9 @@ def crack(cypher_text):
             bar()
             mapping = addGuessesToMap(mapping, single_word_map)
     
-    mapping = collapse_solved_letters(mapping)
+    
+    
+    mapping = collapse_solved_letters(mapping, frequency_analysis(cypher_text).upper())
     print(mapping)
     
     local_maxima = hill_climb_blank(hill_climb_undecided(mapping, cypher_text), cypher_text)
@@ -186,14 +188,15 @@ def count_of_items_with_1(mapping):
     return count
 
 
-def collapse_solved_letters(mapping):
+def collapse_solved_letters(mapping, frequency_order=FREQUENCY_ALPHABET):
     unsolved_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     with alive_bar(len(unsolved_letters)) as bar:
         while unsolved_letters and any(len(mapping[letter]) == 1 for letter in unsolved_letters):
             letters_with_1 = [letter for letter in unsolved_letters if len(mapping[letter]) == 1]
+        
             
             # order by highest frequency - i.e. choose 1st preference of the most common letters first
-            letters_with_1.sort(key=lambda x: FREQUENCY_ALPHABET.find(x))
+            letters_with_1.sort(key=lambda x: frequency_order.find(x))
             print(letters_with_1)
             
             for letter in letters_with_1:
