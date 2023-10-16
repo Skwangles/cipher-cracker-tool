@@ -174,7 +174,7 @@ def crack(cypher_text):
                 bar()
         mapping = addGuessesToMap(mapping, single_word_map)
     
-    mapping = collpase_solved_letters(mapping)
+    mapping = collapse_solved_letters(mapping)
     print(mapping)
     
     
@@ -195,13 +195,12 @@ def crack(cypher_text):
     return decrypted
 
 
-def collpase_solved_letters(mapping):
+def collapse_solved_letters(mapping):
     unsolved_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     with alive_bar(len(unsolved_letters)) as bar:
         while unsolved_letters and any(len(mapping[letter]) == 1 for letter in unsolved_letters):
             letters_with_1 = [letter for letter in unsolved_letters if len(mapping[letter]) == 1]
             
-            print(letters_with_1, unsolved_letters)
             for letter in letters_with_1:
                 if len(mapping[letter]) != 1:
                     continue
@@ -220,8 +219,22 @@ def collpase_solved_letters(mapping):
                     if solved_letter in mapping[key]:
                         mapping[key].remove(solved_letter) 
     return mapping
-            
+    
 
+def count_of_items_with_1(mapping):
+    count = 0
+    for key in mapping:
+        if len(mapping[key]) == 1:
+            count += 1
+    return count
+            
+def check_if_any_match(mapping, letter, others_with_1):
+    output = []
+    for other in others_with_1:
+        if letter in mapping[other]:
+            output.append(other)
+    return output
+    
 
 # store the set of words and what they look like globally so we dont have to spend ages getting them each time
 for word in english_words:
