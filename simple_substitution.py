@@ -5,7 +5,7 @@ from utils import *
 from nltk.corpus import words 
 import re
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-
+FREQUENCY_ALPHABET = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
 
 def get_empty():
     
@@ -191,6 +191,10 @@ def collapse_solved_letters(mapping):
     with alive_bar(len(unsolved_letters)) as bar:
         while unsolved_letters and any(len(mapping[letter]) == 1 for letter in unsolved_letters):
             letters_with_1 = [letter for letter in unsolved_letters if len(mapping[letter]) == 1]
+            
+            # order by highest frequency - i.e. choose 1st preference of the most common letters first
+            letters_with_1.sort(key=lambda x: FREQUENCY_ALPHABET.find(x))
+            print(letters_with_1)
             
             for letter in letters_with_1:
                 if len(mapping[letter]) != 1:
