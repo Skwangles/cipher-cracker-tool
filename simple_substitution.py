@@ -98,6 +98,7 @@ def encrypt(text, key):
 
     return encrypted_text
 
+
 def decrypt(cypher_text, key):
     """Decrypts the cypher text using the key"""
     if not cypher_text:
@@ -123,15 +124,6 @@ def decrypt(cypher_text, key):
     decrypted_text = decrypted_text.lower()
 
     return decrypted_text
-
-def dict_to_sorted_list(dict):
-    """Converts a dictionary to a sorted list"""
-    return sorted(dict.items(), key=lambda x: x[1], reverse=True)
-
-def GetShortestEntry(list):
-    """Sorts a list"""
-    return sorted(list, key=lambda x: len(x[1]))[0]
-
 
 def crack(cypher_text):
     """Cracks the cypher text, returning the key"""       
@@ -176,11 +168,6 @@ def crack(cypher_text):
     
     mapping = collapse_solved_letters(mapping)
     print(mapping)
-    
-    
-    
-    
-    
     
     decrypted = ""
     for letter in cypher_text:
