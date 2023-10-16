@@ -164,12 +164,6 @@ def crack(cypher_text):
             if pattern not in word_patterns:
                 continue
             
-            if len(word_patterns[pattern]) == 1:
-                # we have found the word, so add it to the mapping
-                for i in range(len(c_word)):
-                    mapping[c_word[i]] = [word_patterns[pattern][0][i]]
-                continue
-            
             single_word_map = get_empty()
             for possible_word in word_patterns[pattern]:
                 for i in range(len(c_word)):
