@@ -65,6 +65,19 @@ def get_pattern_of_unique(word):
         output += separator + str(letters[letter]) # e.g. "1|2|3|4..."
     return output
 
+def apply_mapping_to_text(cypher_text, mapping): 
+    decrypted = ""
+    for letter in cypher_text:
+        if letter.upper() in mapping:
+            if len(mapping[letter.upper()]) > 1 or len(mapping[letter.upper()]) == 0:
+                decrypted += "*"
+            else:
+                decrypted += mapping[letter.upper()][0]
+        else:
+            decrypted += letter
+
+    return decrypted
+
 
 
 #Generate key if one is not supplied
@@ -169,17 +182,7 @@ def crack(cypher_text):
     mapping = collapse_solved_letters(mapping)
     print(mapping)
     
-    decrypted = ""
-    for letter in cypher_text:
-        if letter.upper() in mapping:
-            if len(mapping[letter.upper()]) > 1 or len(mapping[letter.upper()]) == 0:
-                decrypted += "*"
-            else:
-                decrypted += mapping[letter.upper()][0]
-        else:
-            decrypted += letter
-
-    return decrypted
+    return apply_mapping_to_text(cypher_text, mapping)
 
 
 def collapse_solved_letters(mapping):
