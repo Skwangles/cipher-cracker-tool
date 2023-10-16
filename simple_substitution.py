@@ -3,7 +3,7 @@ import string
 from alive_progress import alive_bar
 from utils import *
 from nltk.corpus import words 
-
+import re
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
@@ -148,7 +148,9 @@ def crack(cypher_text):
     mapping = get_empty()
     
     
-    cypher_text = cypher_text.upper().replace("[^A-Z\s]", "")
+    cypher_text = cypher_text.upper()
+    cypher_text = re.sub(r'[^A-Z\s]', '', cypher_text)
+    
     
     # first pass - find words that could match each 'word' in the cypher text
     encrypted_words = cypher_text.split(" ")
