@@ -177,9 +177,18 @@ def crack(cypher_text):
     mapping = collapse_solved_letters(mapping)
     print(mapping)
     
-    return apply_mapping_to_text(cypher_text, mapping)
+    local_maxima = hill_climb_undecided(mapping, cypher_text)
+    print("Pre-Hill Key:", mapping_to_key(mapping))
+    print("Key:", mapping_to_key(local_maxima))
+    return apply_mapping_to_text(cypher_text, local_maxima)
 
 
+def mapping_to_key(mapping):
+    keys = sorted(mapping.items(), key=lambda x: x[1])
+    return "".join(key[0] for key in keys)
+
+
+        
 def collapse_solved_letters(mapping):
     unsolved_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     with alive_bar(len(unsolved_letters)) as bar:
