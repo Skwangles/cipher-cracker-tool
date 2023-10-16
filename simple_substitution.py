@@ -7,39 +7,6 @@ import re
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 FREQUENCY_ALPHABET = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
 
-def get_empty():
-    
-    return {
-        'A': [],
-        'B': [],
-        'C': [],
-        'D': [],
-        'E': [],
-        'F': [],
-        'G': [],
-        'H': [],
-        'I': [],
-        'J': [],
-        'K': [],
-        'L': [],
-        'M': [],
-        'N': [],
-        'O': [],
-        'P': [],
-        'Q': [],
-        'R': [],
-        'S': [],
-        'T': [],
-        'U': [],
-        'V': [],
-        'W': [],
-        'X': [],
-        'Y': [],
-        'Z': []
-        }
-
-
-
 english_words = None
 
 if not english_words:
@@ -51,33 +18,6 @@ if not english_words:
     english_words = set(words.words())
 
 word_patterns = {}
-
-
-def get_pattern_of_unique(word):
-    letters = {}
-    output = ""
-    num = 0
-    separator = "|"
-    for letter in word:
-        if letter not in letters:
-            num += 1
-            letters[letter] = num
-        output += separator + str(letters[letter]) # e.g. "1|2|3|4..."
-    return output
-
-def apply_mapping_to_text(cypher_text, mapping): 
-    decrypted = ""
-    for letter in cypher_text:
-        if letter.upper() in mapping:
-            if len(mapping[letter.upper()]) > 1 or len(mapping[letter.upper()]) == 0:
-                decrypted += "*"
-            else:
-                decrypted += mapping[letter.upper()][0]
-        else:
-            decrypted += letter
-
-    return decrypted
-
 
 
 #Generate key if one is not supplied
@@ -138,6 +78,7 @@ def decrypt(cypher_text, key):
 
     return decrypted_text
 
+
 def crack(cypher_text):
     """Cracks the cypher text, returning the key"""       
     if not cypher_text:
@@ -157,6 +98,8 @@ def crack(cypher_text):
     
     # check longest words first as they have the most information
     encrypted_words = sorted(encrypted_words, key=len, reverse=True)
+    
+    
     with alive_bar(len(encrypted_words)) as bar:
         for c_word in encrypted_words:
             pattern = get_pattern_of_unique(c_word)
@@ -177,18 +120,72 @@ def crack(cypher_text):
     mapping = collapse_solved_letters(mapping)
     print(mapping)
     
-    local_maxima = hill_climb_undecided(mapping, cypher_text)
-    print("Pre-Hill Key:", mapping_to_key(mapping))
+    local_maxima = hill_climb_blank(hill_climb_undecided(mapping, cypher_text), cypher_text)
+
     print("Key:", mapping_to_key(local_maxima))
     return apply_mapping_to_text(cypher_text, local_maxima)
 
+### Formatting/Utils ###
+
+def get_missing_letters(mapping):
+    present_letters = set()
+    for key in mapping:
+        if len(mapping[key]) != 0:
+            for letter in mapping[key]:
+                present_letters.add(letter)
+                
+    missing_letters = []
+    for letter in ALPHABET:
+        if letter not in present_letters:
+            missing_letters.append(letter)
+    return missing_letters
+
 
 def mapping_to_key(mapping):
+    
     keys = sorted(mapping.items(), key=lambda x: x[1])
     return "".join(key[0] for key in keys)
-
-
         
+
+def get_empty():
+    
+    return {
+        'A': [],
+        'B': [],
+        'C': [],
+        'D': [],
+        'E': [],
+        'F': [],
+        'G': [],
+        'H': [],
+        'I': [],
+        'J': [],
+        'K': [],
+        'L': [],
+        'M': [],
+        'N': [],
+        'O': [],
+        'P': [],
+        'Q': [],
+        'R': [],
+        'S': [],
+        'T': [],
+        'U': [],
+        'V': [],
+        'W': [],
+        'X': [],
+        'Y': [],
+        'Z': []
+        }    
+
+def count_of_items_with_1(mapping):
+    count = 0
+    for key in mapping:
+        if len(mapping[key]) == 1:
+            count += 1
+    return count
+
+
 def collapse_solved_letters(mapping):
     unsolved_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     with alive_bar(len(unsolved_letters)) as bar:
@@ -217,22 +214,8 @@ def collapse_solved_letters(mapping):
                     if solved_letter in mapping[key]:
                         mapping[key].remove(solved_letter) 
     return mapping
-    
-
-def count_of_items_with_1(mapping):
-    count = 0
-    for key in mapping:
-        if len(mapping[key]) == 1:
-            count += 1
-    return count
             
-def check_if_any_match(mapping, letter, others_with_1):
-    output = []
-    for other in others_with_1:
-        if letter in mapping[other]:
-            output.append(other)
-    return output
-    
+ 
 def addGuessesToMap(root_map, single_map):
     """Reduces the root_map to only contain letters that are in both root_map and single_map"""
     intersection = get_empty()
@@ -250,7 +233,6 @@ def addGuessesToMap(root_map, single_map):
             intersection[key] = root_map[key] + single_map[key]
         
     return intersection
-
 
 EARLY_EXIT = 80 # accept 80% to avoid falling into brute force
 
@@ -285,9 +267,66 @@ def hill_climb_undecided(mapping, cypher_text):
         return mapping
     return hill_climb_undecided(best_match, cypher_text)
 
+def hill_climb_blank(mapping, cypher_text):
+    if any(len(mapping[letter]) > 1 for letter in mapping):
+        print("You must have completely 'solved' all letters before running this!")
+        raise ValueError("Must completely solve before filling blanks")
+    
+    unassigned = get_missing_letters(mapping)
+    empty_spots = list(filter(lambda x: len(x[1]) == 0, mapping.items()))
+    
+    best_match = None
+    best_match_percent = -1
+    
+    if len(empty_spots) == 0:
+        return mapping
+    
+    letter, _ = empty_spots[0]
+    print("Hill climbing", letter, "with", len(unassigned), "possibilities")
+    
+    for guess in unassigned:
+        new_mapping = collapse_solved_letters(addGuessesToMap(mapping, {letter: [guess]}))
+        decrypted = apply_mapping_to_text(cypher_text, new_mapping)
+        percent = get_english_percent(decrypted)
+        print(percent)
+        if percent > best_match_percent:
+            best_match = new_mapping
+            best_match_percent = percent
+            if percent > EARLY_EXIT:
+                print("Early exit")
+                return best_match
+                
+    if best_match_percent == -1:
+        print("No matches found")
+        return mapping
+    
+    return hill_climb_blank(best_match, cypher_text)
+    
 
- 
+def get_pattern_of_unique(word):
+    letters = {}
+    output = ""
+    num = 0
+    separator = "|"
+    for letter in word:
+        if letter not in letters:
+            num += 1
+            letters[letter] = num
+        output += separator + str(letters[letter]) # e.g. "1|2|3|4..."
+    return output
 
+def apply_mapping_to_text(cypher_text, mapping): 
+    decrypted = ""
+    for letter in cypher_text:
+        if letter.upper() in mapping:
+            if len(mapping[letter.upper()]) > 1 or len(mapping[letter.upper()]) == 0:
+                decrypted += "*"
+            else:
+                decrypted += mapping[letter.upper()][0]
+        else:
+            decrypted += letter
+
+    return decrypted
 
 # store the set of words and what they look like globally so we dont have to spend ages getting them each time
 for word in english_words:
@@ -299,9 +338,12 @@ for word in english_words:
 
 
 if __name__ == "__main__":
-    text = """Robert Frost was born in San Francisco, but his family moved to Lawrence, Massachusetts, in 1884 following his father's death. The move was actually a return, for Frost’s ancestors were originally New Englanders, and Frost became famous for his poetry’s engagement with New England locales, identities, and themes. Frost graduated from Lawrence High School, in 1892, as class poet (he also shared the honor of co-valedictorian with his wife-to-be Elinor White), and two years later, the New York Independent accepted his poem entitled “My Butterfly,” launching his status as a professional poet with a check for $15.00. Frost's first book was published around the age of 40, but he would go on to win a record four Pulitzer Prizes and become the most famous poet of his time, before his death at the age of 88.
- 
-To celebrate his first publication, Frost had a book of six poems privately printed; two copies of Twilight were made—one for himself and one for his fiancee. Over the next eight years, however, he succeeded in having only 13 more poems published. During this time, Frost sporadically attended Dartmouth and Harvard and earned a living teaching school and, later, working a farm in Derry, New Hampshire. But in 1912, discouraged by American magazines’ constant rejection of his work, he took his family to England, where he found more professional success. Continuing to write about New England, he had two books published, A Boy’s Will (1913) and North of Boston (1914), which established his reputation so that his return to the United States in 1915 was as a celebrated literary figure. Holt put out an American edition of North of Boston in 1915, and periodicals that had once scorned his work now sought it. """
+    text = """The cab arrived late. The inside was in as bad of shape as the outside which was concerning, and it didn't appear that it had been cleaned in months. The green tree air-freshener hanging from the rearview mirror was either exhausted of its scent or not strong enough to overcome the other odors emitting from the cab. The correct decision, in this case, was to get the hell out of it and to call another cab, but she was late and didn't have a choice.
+    
+    She closed her eyes and then opened them again. What she was seeing just didn't make sense. She shook her head seeing if that would help. It didn't. Although it seemed beyond reality, there was no denying she was witnessing a large formation of alien spaceships filling the sky.
+    
+    He watched as the young man tried to impress everyone in the room with his intelligence. There was no doubt that he was smart. The fact that he was more intelligent than anyone else in the room could have been easily deduced, but nobody was really paying any attention due to the fact that it was also obvious that the young man only cared about his intelligence.
+    """
     key = generate_key()
     key = "".join(key[letter] for letter in key)
     print("Key:", key)
@@ -312,3 +354,4 @@ To celebrate his first publication, Frost had a book of six poems privately prin
     cracked = crack(encrypted)
     print("Cracked:", cracked)
     print("Cracked %:", get_english_percent(cracked))
+    print("Actual Key:", key.upper())   
