@@ -1,6 +1,7 @@
 from utils import *
 from itertools import product
 import string
+import re
 
 # The alphabet in order of most common to least common.
 ETAOIN = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
@@ -23,7 +24,7 @@ def split_text_into_columns(cipher_text: str, period: int):
 
 def remove_spaces_punctuation(cipher_text: str):
     """Return cipher text without spaces and punctuation characters."""
-    return cipher_text.translate(str.maketrans("", "", string.punctuation + "\n\t\s\r")).replace(" ", "")
+    return re.sub("[^a-zA-Z0-9]+", "", cipher_text)
 
 def find_key_period(cipher_text: str, max_period: int):
     """Get the likely key period based on index of coincidence averages."""
@@ -129,7 +130,7 @@ def encrypt(text: str, key: str):
 def decrypt(cipher_text: str, key: str):
     """Decrypts the cypher text using key."""
     original_text = ""
-    key = generate_key_sequence(text, key)
+    key = generate_key_sequence(cipher_text, key)
 
     x = range(len(cipher_text))
     for i in x:

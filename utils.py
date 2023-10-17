@@ -30,6 +30,7 @@ def get_english_score(text):
             score += floor
     return score
 
+
 def index_of_coincidence(input):
     """Calculates the IoC"""
 
@@ -82,6 +83,8 @@ def get_english_percent(input):
     if not input:
         print("Missing input text to calculate english word %")
         return None
+    
+    input = re.sub("[^A-Za-z\\s]", "", input).lower()
 
     #if our global set of english words isnt available yet, go get them
     global english_words

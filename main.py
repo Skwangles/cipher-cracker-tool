@@ -80,7 +80,7 @@ def call_elgamal(args):
     cipher = elgamal
     match args.action.lower():
         case "crack":
-            print(cipher.crack(int(args.text), int(args.text2), int(args.receiver), int(args.root), int(args.modulus)))
+            print(cipher.crack(int(args.text), int(args.text2), int(args.receiver), int(args.root), int(args.modulus), bool(args.crack_b) or False))
         case "decrypt":
             print(cipher.decrypt(int(args.text), int(args.text2), int(args.private), int(args.root), int(args.modulus)))
         case "encrypt":
@@ -120,13 +120,13 @@ action_group.add_argument("--generate", "-g", action="store_const", const="gener
 
 # caesar - shift based key 0-26
 caesar_parser = individual_cipher_arg_parsers.add_parser("caesar", help="Caesar Cipher")
-caesar_parser.add_argument("-t","--text", required=True, help="*Text to encrypt/decrypt/crack")
+caesar_parser.add_argument("-t","-m", "--text", required=True, help="*Text to encrypt/decrypt/crack")
 caesar_parser.add_argument("-s", "--shift", default=0, type=int, choices=range(-26, 27), help="Caesar shift ±(0-26)")
 caesar_parser.add_argument("-d", "--digits", action="store_true", help="Shift the digits in addition to characters")
 
 # rsa
 rsa_parser = individual_cipher_arg_parsers.add_parser("rsa", help="RSA Cipher")
-rsa_parser.add_argument("-t","--text", help="Text to encrypt/decrypt", type=int)
+rsa_parser.add_argument("-t", "-m", "--text", help="Text to encrypt/decrypt", type=int)
 rsa_parser.add_argument("-n", "--n", help="N value from p*q (Encrypt/Decrypt/Crack)", type=int)
 rsa_parser.add_argument("-e", "--e", help="E value (inverse of d) (Encrypt/Crack)", type=int)
 rsa_parser.add_argument("-d", "--d", help="D value (Private) (Decrypt)", type=int)
@@ -135,17 +135,18 @@ rsa_parser.add_argument("--max", help="Maximum prime value for key generation", 
 
 # elgamal
 elgamal_parser = individual_cipher_arg_parsers.add_parser("elgamal", help="RSA Cipher")
-elgamal_parser.add_argument("-t", "-t1","--text", "--text1", required=True, help="Text to encrypt", type=int)
-elgamal_parser.add_argument("-t2","--text2", help="Text Km to decrypt (Decrypt/Crack)", type=int)
+elgamal_parser.add_argument("-t", "-m", "-t1", "-m1", "--text", "--text1", required=True, help="Text to encrypt", type=int)
+elgamal_parser.add_argument("-t2", "-m2", "--text2", help="Text Km to decrypt (Decrypt/Crack)", type=int)
 elgamal_parser.add_argument("-k", "--little-k", help="Little k/random number (Encrypt optional)", type=int)
 elgamal_parser.add_argument("-y", "--receiver", help="Receiver's y value (Encrypt/Crack)", type=int)
 elgamal_parser.add_argument("-b", "-x", "--private", help="Receiver's private key (Decrypt)", type=int)
 elgamal_parser.add_argument("-a", "-r", "--root", required=True, help="Root value", type=int)
+elgamal_parser.add_argument("--crack-b", "--crack-x", help="Only crack via receiver's key (Crack)", action="store_true", dest="crack_b")
 elgamal_parser.add_argument("-p", "--modulus", required=True, help="Modulus value", type=int)
 
 # maassey-omura
 massey_omura_parser = individual_cipher_arg_parsers.add_parser("massey", help="Massey-Omura cryptosystem")
-massey_omura_parser.add_argument("-t","--text", help="*Number to encrypt/decrypt")
+massey_omura_parser.add_argument("-t","-m", "--text", required=True, help="*Number to encrypt/decrypt")
 massey_omura_parser.add_argument("-p", "--prime", required=True, help="Prime number")
 massey_omura_parser.add_argument("-a", "-s", "--sender", help="Sender/Alice's key")
 massey_omura_parser.add_argument("-b", "-r","--receiver", help="Receiver/Bob's key")
@@ -160,7 +161,7 @@ simple_parser.add_argument("-k", "--key", default="abcdefghijklmnopqrstuvwxyz", 
 
 # feistel - text based key, rounds integer, and keylength integer
 feistel_parser = individual_cipher_arg_parsers.add_parser("feistel", help="Feistel Cipher")
-feistel_parser.add_argument("-t","-b","--text", "--binary", required=True, dest="text", help="Plaintext to encrypt/Binary to decrypt")
+feistel_parser.add_argument("-t",  "-m", "--text", "--hex", required=True, dest="text", help="Plaintext to encrypt/Hex to decrypt")
 feistel_parser.add_argument("-k", "--key", default="abc123", help="Key - default: 'abc123' ")
 feistel_parser.add_argument("-r", "--rounds", default=16, help="# of rounds to run the feistel cipher for - default: 16", type=int)
 
