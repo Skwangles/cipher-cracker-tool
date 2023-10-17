@@ -328,7 +328,37 @@ def hill_climb_blank(mapping, cypher_text):
         return mapping
     
     return hill_climb_blank(best_match, cypher_text)
+
+### Hill Climb to find local maxima ###
+
+def hill_climb(mapping, cypher_text):
+    best = mapping
+    best_fitness = get_english_score(apply_mapping_to_text(cypher_text, best))
+    print("Starting fitness:", best_fitness)
+    with alive_bar(1000) as bar:
+        # Hill climb for 1000 iterations
+        for i in range(1000):
+            new_map = swap_randomly(best.copy())
+            new_percent = get_english_score(apply_mapping_to_text(cypher_text, new_map))
+            if new_percent > best_fitness:
+                best = new_map
+                print("New best:", new_percent)
+                best_fitness = new_percent
+            bar()
+            
+    return best
+
+
+def swap_randomly(mapping):
+    key1 = random.randrange(0, len(ALPHABET))
+    key2 = random.randrange(0, len(ALPHABET))
+    while key1 == key2:
+        key2 = random.randrange(0, len(ALPHABET))
     
+    temp = mapping[ALPHABET[key1]]
+    mapping[ALPHABET[key1]] = mapping[ALPHABET[key2]]
+    mapping[ALPHABET[key2]] = temp
+    return mapping
 
 
 
