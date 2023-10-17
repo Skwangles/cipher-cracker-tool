@@ -135,6 +135,31 @@ def crack(cypher_text):
 
 ### Formatting/Utils ###
 
+def get_pattern_of_unique(word):
+    letters = {}
+    output = ""
+    num = 0
+    separator = "|"
+    for letter in word:
+        if letter not in letters:
+            num += 1
+            letters[letter] = num
+        output += separator + str(letters[letter]) # e.g. "1|2|3|4..."
+    return output
+
+def apply_mapping_to_text(cypher_text, mapping): 
+    decrypted = ""
+    for letter in cypher_text:
+        if letter.upper() in mapping:
+            if len(mapping[letter.upper()]) > 1 or len(mapping[letter.upper()]) == 0:
+                decrypted += "*"
+            else:
+                decrypted += mapping[letter.upper()][0]
+        else:
+            decrypted += letter
+
+    return decrypted
+
 def get_missing_letters(mapping):
     present_letters = set()
     for key in mapping:
@@ -193,6 +218,7 @@ def count_of_items_with_1(mapping):
             count += 1
     return count
 
+#### Solving the cypher ####
 
 def collapse_solved_letters(mapping, frequency_order=FREQUENCY_ALPHABET):
     unsolved_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -224,7 +250,6 @@ def collapse_solved_letters(mapping, frequency_order=FREQUENCY_ALPHABET):
                         mapping[key].remove(solved_letter) 
     return mapping
             
- 
 def addGuessesToMap(root_map, single_map):
     """Reduces the root_map to only contain letters that are in both root_map and single_map"""
     intersection = get_empty()
@@ -243,6 +268,7 @@ def addGuessesToMap(root_map, single_map):
         
     return intersection
 
+### Given guesses, narrow down remaining letters ###
 def hill_climb_undecided(mapping, cypher_text):
     non_empty = filter(lambda x: len(x[1]) > 1, mapping.items())
     non_solved = sorted(non_empty, key=lambda x: len(x[1]))
@@ -304,30 +330,8 @@ def hill_climb_blank(mapping, cypher_text):
     return hill_climb_blank(best_match, cypher_text)
     
 
-def get_pattern_of_unique(word):
-    letters = {}
-    output = ""
-    num = 0
-    separator = "|"
-    for letter in word:
-        if letter not in letters:
-            num += 1
-            letters[letter] = num
-        output += separator + str(letters[letter]) # e.g. "1|2|3|4..."
-    return output
 
-def apply_mapping_to_text(cypher_text, mapping): 
-    decrypted = ""
-    for letter in cypher_text:
-        if letter.upper() in mapping:
-            if len(mapping[letter.upper()]) > 1 or len(mapping[letter.upper()]) == 0:
-                decrypted += "*"
-            else:
-                decrypted += mapping[letter.upper()][0]
-        else:
-            decrypted += letter
 
-    return decrypted
 
 # store the set of words and what they look like globally so we dont have to spend ages getting them each time
 for word in english_words:
