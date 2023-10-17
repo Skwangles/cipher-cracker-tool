@@ -34,7 +34,7 @@ def encrypt(text, key="", rounds=16):
         return "No key provided"   
     
     print("Removing all non-alphanumeric characters from text")
-    text = re.sub("[^a-zA-Z0-9\s]+", "", text)
+    text = re.sub("[^a-zA-Z0-9\\s]+", "", text)
     
     bin = string_to_binary(text)
     
@@ -117,7 +117,7 @@ def crack(cypher_text):
         print("Trying with " + str(i) + " rounds...")
         for key in generate_combinations(MAX_KEY_CRACK_LENGTH):
             decrypted = str(decrypt(cypher_text, key, i))
-            if re.match("^[a-zA-Z0-9\s]*$", decrypted) and index_of_coincidence(decrypted) >= 0.066:
+            if re.match("^[a-zA-Z0-9\\s]*$", decrypted) and index_of_coincidence(decrypted) >= 0.066:
                 # Finish the loading bars
                 print("Done")
                 return "Key: " + key + ", Plain Text: " + decrypted

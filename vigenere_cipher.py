@@ -23,7 +23,7 @@ def split_text_into_columns(cipher_text: str, period: int):
 
 def remove_spaces_punctuation(cipher_text: str):
     """Return cipher text without spaces and punctuation characters."""
-    return cipher_text.translate(str.maketrans("", "", string.punctuation + "\n\t\s\r")).replace(" ", "")
+    return cipher_text.translate(str.maketrans("", "", string.punctuation + "\n\t \r")).replace(" ", "")
 
 def find_key_period(cipher_text: str, max_period: int):
     """Get the likely key period based on index of coincidence averages."""
