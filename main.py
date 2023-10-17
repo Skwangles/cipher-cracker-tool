@@ -146,7 +146,7 @@ elgamal_parser.add_argument("-p", "--modulus", required=True, help="Modulus valu
 
 # maassey-omura
 massey_omura_parser = individual_cipher_arg_parsers.add_parser("massey", help="Massey-Omura cryptosystem")
-massey_omura_parser.add_argument("-t","-m", "--text", required=True, help="*Number to encrypt/decrypt")
+massey_omura_parser.add_argument("-t","-m", "--text", help="*Number to encrypt/decrypt")
 massey_omura_parser.add_argument("-p", "--prime", required=True, help="Prime number")
 massey_omura_parser.add_argument("-a", "-s", "--sender", help="Sender/Alice's key")
 massey_omura_parser.add_argument("-b", "-r","--receiver", help="Receiver/Bob's key")

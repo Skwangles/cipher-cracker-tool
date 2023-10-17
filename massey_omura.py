@@ -36,7 +36,7 @@ def crack(m_a, m_ab, m_b, p):
     b_mod_p = find_key(m_a, m_ab, p)
     a_mod_p = find_key(m_b, m_ab, p)
     if a_mod_p == -1 or b_mod_p == -1:
-        return "Could not determine a or b (e.g. m^a mod p) in a reasonable time - please use smaller numbers if you want to crack"
+        return "Could not determine a or b"
 
     print("A key:", a_mod_p)
     print("B key:", b_mod_p)
