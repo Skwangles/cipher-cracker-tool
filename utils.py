@@ -2,6 +2,7 @@ import random, nltk
 from nltk.corpus import words 
 import sympy 
 from math import log10
+import re
 
 # Quadgram scoring function
 # Adapted from http://practicalcryptography.com/cryptanalysis/text-characterisation/quadgrams/
@@ -10,7 +11,7 @@ total_nums = 0
 for line in open('english_quadgrams.txt'):
     key,count = line.split(' ') 
     total_nums += int(count)
-    quadgrams[key] = int(count)
+    quadgrams[key.upper()] = int(count)
     
 # convert count to log probabilities
 for key in quadgrams.keys():
@@ -20,14 +21,14 @@ for key in quadgrams.keys():
 floor = log10(0.01/total_nums) 
 
 def get_english_score(text):
+    score = 0
+    text = re.sub("[^A-Za-z]", "", text).upper()
     for i in range(len(text)-4+1):
         if text[i:i+4] in quadgrams: 
             score += quadgrams[text[i:i+4]]
         else: 
             score += floor
     return score
-
-fitness = ngram_score('english_quadgrams.txt')
 
 def index_of_coincidence(input):
     """Calculates the IoC"""
@@ -65,10 +66,6 @@ def xor_string_and_key(string, key):
         else:
             output += '1'
     return output
-
-
-def get_english_fitness(input):
-    return fitness.score(input)
 
 
 def random_key(length=3):
