@@ -130,7 +130,7 @@ def encrypt(text: str, key: str):
 def decrypt(cipher_text: str, key: str):
     """Decrypts the cypher text using key."""
     original_text = ""
-    key = generate_key_sequence(text, key)
+    key = generate_key_sequence(cipher_text, key)
 
     x = range(len(cipher_text))
     for i in x:
