@@ -124,14 +124,12 @@ def crack(cypher_text):
     mapping = collapse_solved_letters(mapping, frequency_analysis(cypher_text).upper())
     print(mapping)
     
-    local_maxima = hill_climb_undecided(mapping, cypher_text)
-    print(local_maxima)
-    fullkey = hill_climb_blank(local_maxima, cypher_text)
+    fullkey = hill_climb_blank(hill_climb_undecided(mapping, cypher_text), cypher_text)
 
-    
+    hill_climbed_map = hill_climb(fullkey, cypher_text)
 
-    print("Key:", mapping_to_key(fullkey))
-    return apply_mapping_to_text(cypher_text, fullkey)
+    print("Key:", mapping_to_key(hill_climbed_map))
+    return apply_mapping_to_text(cypher_text, hill_climbed_map)
 
 ### Formatting/Utils ###
 
