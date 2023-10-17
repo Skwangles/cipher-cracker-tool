@@ -80,7 +80,7 @@ def call_elgamal(args):
     cipher = elgamal
     match args.action.lower():
         case "crack":
-            print(cipher.crack(int(args.text), int(args.text2), int(args.receiver), int(args.root), int(args.modulus)))
+            print(cipher.crack(int(args.text), int(args.text2), int(args.receiver), int(args.root), int(args.modulus), bool(args.crack_b) or False))
         case "decrypt":
             print(cipher.decrypt(int(args.text), int(args.text2), int(args.private), int(args.root), int(args.modulus)))
         case "encrypt":
@@ -141,6 +141,7 @@ elgamal_parser.add_argument("-k", "--little-k", help="Little k/random number (En
 elgamal_parser.add_argument("-y", "--receiver", help="Receiver's y value (Encrypt/Crack)", type=int)
 elgamal_parser.add_argument("-b", "-x", "--private", help="Receiver's private key (Decrypt)", type=int)
 elgamal_parser.add_argument("-a", "-r", "--root", required=True, help="Root value", type=int)
+elgamal_parser.add_argument("--crack-b", "--crack-x", help="Only crack via receiver's key (Crack)", action="store_true", dest="crack_b")
 elgamal_parser.add_argument("-p", "--modulus", required=True, help="Modulus value", type=int)
 
 # maassey-omura
