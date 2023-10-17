@@ -98,8 +98,8 @@ def crack(cypher_text):
     # first pass - find words that could match each 'word' in the cypher text
     encrypted_words = cypher_text.split(" ")
     
-    # check longest words first as they have the most information
-    encrypted_words = sorted(encrypted_words, key=len, reverse=True)
+    # check shortest words first as the longer words will narrow it down later
+    encrypted_words = sorted(encrypted_words, key=len, reverse=False)
     
     
     with alive_bar(len(encrypted_words)) as bar:
