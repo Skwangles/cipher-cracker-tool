@@ -3,6 +3,36 @@ from nltk.corpus import words
 import sympy 
 
 
+
+from math import log10
+
+# Ngram scoring function
+# Adapted from http://practicalcryptography.com/cryptanalysis/text-characterisation/quadgrams/
+class ngram_score(object):
+    def __init__(self,ngramfile,sep=' '):
+        ''' load a file containing ngrams and counts, calculate log probabilities '''
+        self.ngrams = {}
+        for line in open(ngramfile):
+            key,count = line.split(sep) 
+            self.ngrams[key] = int(count)
+        self.Length = len(key)
+        self.Count = sum(self.ngrams.values())
+        #calculate log probabilities
+        for key in self.ngrams.keys():
+            self.ngrams[key] = log10(float(self.ngrams[key])/self.Count)
+        self.floor = log10(0.01/self.Count)
+
+    def score(self,text):
+        ''' compute the score of text '''
+        score = 0
+        ngrams = self.ngrams.__getitem__
+        for i in range(len(text)-self.Length+1):
+            if text[i:i+self.Length] in self.ngrams: score += ngrams(text[i:i+self.Length])
+            else: score += self.floor          
+        return score
+
+fitness = ngram_score('english_quadgrams.txt')
+
 def index_of_coincidence(input):
     """Calculates the IoC"""
 
@@ -41,7 +71,8 @@ def xor_string_and_key(string, key):
     return output
 
 
-
+def get_english_fitness(input):
+    return fitness.score(input)
 
 
 def random_key(length=3):

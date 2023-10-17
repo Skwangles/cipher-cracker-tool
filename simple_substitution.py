@@ -20,6 +20,8 @@ if not english_words:
 word_patterns = {}
 
 
+ABSOLUTE_MINIMUM = int(-1e99)
+
 #Generate key if one is not supplied
 def generate_key():
     alphabet = list(string.ascii_lowercase)
@@ -122,10 +124,14 @@ def crack(cypher_text):
     mapping = collapse_solved_letters(mapping, frequency_analysis(cypher_text).upper())
     print(mapping)
     
-    local_maxima = hill_climb_blank(hill_climb_undecided(mapping, cypher_text), cypher_text)
+    local_maxima = hill_climb_undecided(mapping, cypher_text)
+    print(local_maxima)
+    fullkey = hill_climb_blank(local_maxima, cypher_text)
 
-    print("Key:", mapping_to_key(local_maxima))
-    return apply_mapping_to_text(cypher_text, local_maxima)
+    
+
+    print("Key:", mapping_to_key(fullkey))
+    return apply_mapping_to_text(cypher_text, fullkey)
 
 ### Formatting/Utils ###
 
@@ -237,8 +243,6 @@ def addGuessesToMap(root_map, single_map):
         
     return intersection
 
-EARLY_EXIT = 80 # accept 80% to avoid falling into brute force
-
 def hill_climb_undecided(mapping, cypher_text):
     non_empty = filter(lambda x: len(x[1]) > 1, mapping.items())
     non_solved = sorted(non_empty, key=lambda x: len(x[1]))
@@ -250,22 +254,19 @@ def hill_climb_undecided(mapping, cypher_text):
     
     print("Hill climbing", letter, "with", len(possible), "possibilities")
     best_match = None
-    best_match_percent = -1
+    best_match_percent = ABSOLUTE_MINIMUM
 
     for guess in possible:
         print("Guessing", letter, "is", guess)
         new_mapping = collapse_solved_letters(addGuessesToMap(mapping, {letter: [guess]}))
         decrypted = apply_mapping_to_text(cypher_text, new_mapping)
-        percent = get_english_percent(decrypted)
+        percent = fitness.score(decrypted)
         print(percent)
         if percent > best_match_percent:
             best_match = new_mapping
             best_match_percent = percent
-            if percent > EARLY_EXIT:
-                print("Early exit")
-                return best_match
                 
-    if best_match_percent == -1:
+    if best_match_percent <= ABSOLUTE_MINIMUM:
         print("No matches found")
         return mapping
     return hill_climb_undecided(best_match, cypher_text)
@@ -279,7 +280,7 @@ def hill_climb_blank(mapping, cypher_text):
     empty_spots = list(filter(lambda x: len(x[1]) == 0, mapping.items()))
     
     best_match = None
-    best_match_percent = -1
+    best_match_percent = ABSOLUTE_MINIMUM
     
     if len(empty_spots) == 0:
         return mapping
@@ -290,16 +291,13 @@ def hill_climb_blank(mapping, cypher_text):
     for guess in unassigned:
         new_mapping = collapse_solved_letters(addGuessesToMap(mapping, {letter: [guess]}))
         decrypted = apply_mapping_to_text(cypher_text, new_mapping)
-        percent = get_english_percent(decrypted)
+        percent = fitness.score(decrypted)
         print(percent)
         if percent > best_match_percent:
             best_match = new_mapping
             best_match_percent = percent
-            if percent > EARLY_EXIT:
-                print("Early exit")
-                return best_match
                 
-    if best_match_percent == -1:
+    if best_match_percent <= ABSOLUTE_MINIMUM:
         print("No matches found")
         return mapping
     
@@ -356,5 +354,6 @@ if __name__ == "__main__":
     print("Decrypted:", decrypted)
     cracked = crack(encrypted)
     print("Cracked:", cracked)
-    print("Cracked %:", get_english_percent(cracked))
+    print("Original:", fitness.score(text))
+    print("Cracked:", fitness.score(cracked))
     print("Actual Key:", key.upper())   
