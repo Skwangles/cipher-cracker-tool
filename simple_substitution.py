@@ -286,7 +286,7 @@ def hill_climb_undecided(mapping, cypher_text):
         print("Guessing", letter, "is", guess)
         new_mapping = collapse_solved_letters(addGuessesToMap(mapping, {letter: [guess]}))
         decrypted = apply_mapping_to_text(cypher_text, new_mapping)
-        percent = fitness.score(decrypted)
+        percent = get_english_score(decrypted)
         print(percent)
         if percent > best_match_percent:
             best_match = new_mapping
@@ -317,7 +317,7 @@ def hill_climb_blank(mapping, cypher_text):
     for guess in unassigned:
         new_mapping = collapse_solved_letters(addGuessesToMap(mapping, {letter: [guess]}))
         decrypted = apply_mapping_to_text(cypher_text, new_mapping)
-        percent = fitness.score(decrypted)
+        percent = get_english_score(decrypted)
         print(percent)
         if percent > best_match_percent:
             best_match = new_mapping
@@ -358,6 +358,6 @@ if __name__ == "__main__":
     print("Decrypted:", decrypted)
     cracked = crack(encrypted)
     print("Cracked:", cracked)
-    print("Original:", fitness.score(text))
-    print("Cracked:", fitness.score(cracked))
+    print("Original:", get_english_score(text))
+    print("Cracked:", get_english_score(cracked))
     print("Actual Key:", key.upper())   
