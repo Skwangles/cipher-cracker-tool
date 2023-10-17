@@ -2,24 +2,9 @@ import random
 import string
 from alive_progress import alive_bar
 from utils import *
-from nltk.corpus import words 
 import re
+
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-FREQUENCY_ALPHABET = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
-
-english_words = None
-
-if not english_words:
-    try:
-        nltk.data.find('corpora/words.zip')
-    except LookupError:
-        nltk.download('words')
-
-    english_words = set(words.words())
-
-word_patterns = {}
-
-
 ABSOLUTE_MINIMUM = int(-1e99)
 
 #Generate key if one is not supplied
