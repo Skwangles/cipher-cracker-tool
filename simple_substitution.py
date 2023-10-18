@@ -165,7 +165,6 @@ def get_empty():
 def hill_climb(mapping, cypher_text):
     best = mapping
     best_fitness = get_english_score(apply_mapping_to_text(cypher_text, best))
-    print("Starting fitness:", best_fitness)
     with alive_bar(2500) as bar:
         # Hill climb for 1000 iterations
         for i in range(2500):
@@ -175,7 +174,6 @@ def hill_climb(mapping, cypher_text):
                 best = new_map
                 best_fitness = new_percent
             bar()
-            
     return best
 
 def swap_randomly(mapping):
