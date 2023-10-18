@@ -1,14 +1,11 @@
 @echo off
 
 echo #### Encrypt ####
-python main.py  --encrypt rsa -t 42 -n 37344221 -e 11
+python main.py  --encrypt rsa -t 100 -n 58687709 -e 270679
 
 echo #### Decrypt ####
-python main.py  --decrypt rsa -t 27395919 -n 37344221 -d 16969091
+python main.py  --decrypt rsa -t 41802438 -n 58687709 -d 5419
 
 echo #### Crack ####
-python main.py --crack rsa -t 27395919 -n 37344221 -e 11
-
-echo #### Generate Weak Key  (p, q, d, e, n) ####
-python main.py  --generate rsa --min 1000 --max 10000
+python main.py --crack rsa -t 41802438 -n 58687709 -e 270679
 
