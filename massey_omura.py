@@ -40,8 +40,8 @@ def crack(m_a, m_ab, m_b, p):
 
     print("A key:", a_mod_p)
     print("B key:", b_mod_p)
-
-    return pow(m_b, b_mod_p) % p
+    print("Decrypted message:")
+    return decrypt(m_b, b_mod_p, p)
 
 
 def find_key(m_a, m_ab, p):
