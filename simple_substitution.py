@@ -41,6 +41,7 @@ def encrypt(text, key):
         raise ValueError("Key must be a permutation of the English alphabet")
 
     encrypted_text = ""
+    # For each char in text
     for char in text:
         if char in alphabet:
             index = alphabet.index(char)
@@ -66,6 +67,7 @@ def decrypt(cypher_text, key):
         raise ValueError("Key must be a permutation of the English alphabet")
 
     decrypted_text = ""
+    # For each char in cyphertext
     for char in cypher_text:
         if char in key:
             index = key.index(char)
@@ -164,19 +166,23 @@ def get_empty():
 
 def hill_climb(mapping, cypher_text):
     best = mapping
+    # Gets fitness score
     best_fitness = get_english_score(apply_mapping_to_text(cypher_text, best))
     with alive_bar(2500) as bar:
-        # Hill climb for 1000 iterations
+        # Hill climb for 2500 iterations
         for i in range(2500):
             new_map = swap_randomly(best.copy())
             new_percent = get_english_score(apply_mapping_to_text(cypher_text, new_map))
+            # Checks if new fitness score is better
             if new_percent > best_fitness:
                 best = new_map
                 best_fitness = new_percent
             bar()
+    # Returns best fitness function
     return best
 
 def swap_randomly(mapping):
+    # Generates two random keys
     key1 = random.randrange(0, len(ALPHABET))
     key2 = random.randrange(0, len(ALPHABET))
     while key1 == key2:
@@ -185,6 +191,7 @@ def swap_randomly(mapping):
     temp = mapping[ALPHABET[key1]]
     mapping[ALPHABET[key1]] = mapping[ALPHABET[key2]]
     mapping[ALPHABET[key2]] = temp
+    # Returns keys
     return mapping
 
 if __name__ == "__main__":
