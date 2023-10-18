@@ -173,7 +173,6 @@ def hill_climb(mapping, cypher_text):
             new_percent = get_english_score(apply_mapping_to_text(cypher_text, new_map))
             if new_percent > best_fitness:
                 best = new_map
-                print("New best:", new_percent)
                 best_fitness = new_percent
             bar()
             
