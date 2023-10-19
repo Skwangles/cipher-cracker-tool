@@ -30,7 +30,7 @@ def call_rsa(args):
     cipher = rsa
     match args.action.lower():
         case "crack":
-            print(cipher.crack(int(args.text), int(args.n), int(args.e)))
+            print(cipher.crack(int(args.text), int(args.n), int(args.e), bool(args.factor_db)))
         case "decrypt":
             print(cipher.decrypt(int(args.text), int(args.n), int(args.d)))
         case "encrypt":
@@ -132,6 +132,7 @@ rsa_parser.add_argument("-e", "--e", help="E value (inverse of d) (Encrypt/Crack
 rsa_parser.add_argument("-d", "--d", help="D value (Private) (Decrypt)", type=int)
 rsa_parser.add_argument("--min", help="Minimum prime value for key generation", type=int)
 rsa_parser.add_argument("--max", help="Maximum prime value for key generation", type=int)
+rsa_parser.add_argument("--factor-db", help="Use the factor db to crack the key (Crack)", action="store_true", dest="factor_db")
 
 # elgamal
 elgamal_parser = individual_cipher_arg_parsers.add_parser("elgamal", help="RSA Cipher")
