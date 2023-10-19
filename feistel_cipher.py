@@ -36,6 +36,7 @@ def encrypt(text, key="", rounds=16):
         print("Text is not a multiple of 2, padding with a 0")
         bin += "0"
 
+    # Split the binary string in half
     L = bin[:len(bin)//2]
     R = bin[len(bin)//2:]
     
@@ -55,8 +56,12 @@ def decrypt(cypher_text, key="", rounds=16):
     # binary is used for the feistel cipher, so convert to binary
     cypher_text = hex_to_binary(str(cypher_text))
     
-    return binary_to_string(feistel_cipher(cypher_text[:len(cypher_text)//2], 
-                          cypher_text[len(cypher_text)//2:], key=key,
+    
+    L= cypher_text[:len(cypher_text)//2]
+    R= cypher_text[len(cypher_text)//2:]
+    
+    return binary_to_string(feistel_cipher(L, 
+                         R, key=key,
                           rounds=rounds, reversed=True))
 
 

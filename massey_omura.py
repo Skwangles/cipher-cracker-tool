@@ -12,14 +12,13 @@ def encrypt(m, a, b, p):
     # Step 2 - Alice sends m_a to Bob
     m_ab = pow(m_a, b, p)
     
-    # Step 4 - Alice multiplies by her inverse to get m_b
+    # Step 3 - Alice multiplies by her inverse to get m_b
     m_b = pow(m_ab, a_inv, p)
     
 
-    print("y1:", m_a)
-    print("y2:", m_ab)
-    print("p:", p)
-    print("Cipher Text to bob (y3):")
+    print("y1 (A -> B):", m_a)
+    print("y2 (A <- B):", m_ab)
+    print("y3 (A -> B):")
     return m_b
 
 
@@ -27,12 +26,13 @@ def decrypt(m_b, b, p, b_inv=-1):
     """Decrypts the cypher text using the m^b"""
     if b_inv == -1:
         b_inv = utils.modInverse(b, p-1)
-        
     return pow(m_b, b_inv, p)
 
 
 def crack(m_a, m_ab, m_b, p):
     """Cracks the cypher text, returning the key"""
+    
+    # Uses a brute force method to find the key or 'discrete log' solver
     b_mod_p = find_key(m_a, m_ab, p)
     a_mod_p = find_key(m_b, m_ab, p)
     if a_mod_p == -1 or b_mod_p == -1:
@@ -40,7 +40,7 @@ def crack(m_a, m_ab, m_b, p):
 
     print("A key:", a_mod_p)
     print("B key:", b_mod_p)
-    print("Decrypted message:")
+    print("Cracked message:")    
     return decrypt(m_b, b_mod_p, p)
 
 
@@ -49,6 +49,7 @@ def find_key(m_a, m_ab, p):
     if m_a == m_ab:
         return 1
     
+    # Discrete log solver - brute force powers to p-1
     for i in range(2, p):
         if (pow(m_a, i, p)) == m_ab:
             return i
