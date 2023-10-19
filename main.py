@@ -36,7 +36,12 @@ def call_rsa(args):
         case "encrypt":
             print(cipher.encrypt(int(args.text), int(args.n), int(args.e))) #p and q are optional
         case "generate":
-            print(cipher.generate_weak_key(int(args.min), int(args.max)))
+            if args.weak:
+                print("Generating key where p and q are close together...")
+                print(cipher.generate_weak_key(int(args.min), int(args.max)))
+            else:
+                print("Generating random p and q...")
+                print(cipher.generate_strong_key(int(args.min), int(args.max)))
         case _:
             print("Unsupported operation:", args.action)
             
@@ -133,6 +138,7 @@ rsa_parser.add_argument("-d", "--d", help="D value (Private) (Decrypt)", type=in
 rsa_parser.add_argument("--min", help="Minimum prime value for key generation", type=int)
 rsa_parser.add_argument("--max", help="Maximum prime value for key generation", type=int)
 rsa_parser.add_argument("--factor-db", help="Use the factor db to crack the key (Crack)", action="store_true", dest="factor_db")
+rsa_parser.add_argument("--weak", help="Generate a weak key (Crack)", action="store_true", dest="weak")
 
 # elgamal
 elgamal_parser = individual_cipher_arg_parsers.add_parser("elgamal", help="RSA Cipher")
