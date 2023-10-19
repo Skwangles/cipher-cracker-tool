@@ -7,14 +7,18 @@ import re
 ETAOIN = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
 # The alphabet is regular order.
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+# Maximum value it checks for key period.
 REASONABLE_MAX_PERIOD = 10
+# Index of coincidence of English.
 ENGLISH_IOC = 0.67
 
 def split_text_into_columns(cipher_text: str, period: int):
     """Split the characters into columns based on key period."""
+    # Initialise number of columns
     chars = 0
     columns = [''] * period
 
+    # Split text into columns
     y = range(len(cipher_text))
     for j in y:
         if (cipher_text[j].isalpha()):
@@ -60,6 +64,7 @@ def get_english_frequency_match(text: str):
     six_most_common_letters = ETAOIN[:6]
     six_least_common_letters = ETAOIN[-6:]
 
+    # Initialise variables
     frequency_letters_ordered = ""
     frequencies = {
         'A': 0, 'B': 0, 'C': 0, 'D': 0, 'E': 0,
@@ -113,6 +118,7 @@ def encrypt(text: str, key: str):
     cipher_text = ""
     key = generate_key_sequence(text, key)
 
+    # Iterate through each character in the text
     x = range(len(text))
     for i in x:
         char = ""
@@ -132,6 +138,7 @@ def decrypt(cipher_text: str, key: str):
     original_text = ""
     key = generate_key_sequence(cipher_text, key)
 
+    # Iterate through each character in the cipher text
     x = range(len(cipher_text))
     for i in x:
         m = ""
@@ -151,7 +158,7 @@ def crack(cipher_text):
     if not cipher_text:
         return "No cipher text"
     
-    period = find_key_period(cipher_text, 10)
+    period = find_key_period(cipher_text, REASONABLE_MAX_PERIOD)
     cipher_text_modified = remove_spaces_punctuation(cipher_text)
     columns = split_text_into_columns(cipher_text_modified, period)
     possible_combinations = 1
@@ -236,20 +243,14 @@ def generate_key_sequence(text: str, key: str):
     return seq
 
 if __name__ == "__main__":
-    text = "A space explorer is unexpectedly dragged into a conflict between two factions: Kodia Accord and Nexia Syndicate. He is pressured as he has to decide who he sides with and ultimately questions the relationship with his fellow crew members."
-    key = "crypto"
+    text = "Building a dream from your memory is the easiest way of losing your grasp on what's real and what is a dream."
+    key = "dreams"
 
     print("\n--------------" + 
           "\nINITIALISATION" +
           "\n--------------\n" + 
           "\nInput text:\n" + text + "\n"
           "\nKey:\n'" + key + "'\n")
-    
-    # key_seq = generate_key_sequence(text, key)
-    # print("\n---------------------" + 
-    #       "\nGENERATE KEY SEQUENCE" +
-    #       "\n---------------------\n" + 
-    #       "\nKey Sequence:\n'" + key_seq + "'\n")
 
     cipher_text = encrypt(text, key)
     print("\n----------" + 
@@ -263,7 +264,7 @@ if __name__ == "__main__":
           "\n----------\n" +
           "\nOriginal Text:\n" + original_text + "\n")
 
-    cracked_key = crack(cipher_text)
+    cracked_key = crack("L LLWS, GPYSOJ, QVZF TUBIMOFBWV ZVDX TG OFC JC WLPJF XLZM, LJ YPHBZTU LW YFUFVIHHH, LOR CW ZVH FPTH UIXOQKPNSHKY OUI XBRY, RY HKIJ BFY SKWQK XBRY, NK GKEWM DLFBS RYCTSFMKG RRNF OAROB DFWF HI UKTHRO PIL ZYZDRO ICGV, ZC UMOF COK ZVH WEPFG FL KDV, LOR NF UIWPTWS NYK AHRLDS IW ZMUEYOM, CW TSFIDTOLP LCU CPBFM, ZL BHGPTGUIE OOSYF. ON RTM UEEF, HBRZ WV ASBH QV GFH KZJBA KU HUC EP RI. KNOW MD UVY IKGRPGF CZ YOG PEIFGNP'Y URZPSBGVTH, HZPSM GRT CI XSFA. NYGH LW EIS QZRZ RJ ABFFZGAHRE BBX KNS QEEJCH. KNS EVTUWMY KASMCF OHU ZVH JCFBWY XSSYMMWW, COBNIO UCAVZVHV TO HBVOF FEFTS UEJ WQ XSFWL EKSG, ATMZ XVLSQH EP HBV JSDXS UVYZX BDXTWS MFOZ, DMOJBA VGQK SEISL COYH KZPR WFSFDHPT HI KNS XXXPGN FL HKITS GNIKBJXS. FJYE ZVRYRI ZUIMS WVLDHM FL SXVZQS UEJ ADRJ PZX RTR IEXPIM JZOWID IOPV LOOPPO CL DGM IEWM WHKU HKI RSWJ FL HKI RFGNRVC DRO BZF KNS RHTPIM RVDDVLUIM FL BDDT SIFV, CS VLLMZ HFZ TOER PF ZROZ. ZI DIOFC MC RR EP HBV KBG, AP TVUCR TLKSU WH WXOQGP, XS MYGZO JTHVN FT HKI DFOM RTR RGPBBM, NK GKEWM TCXNH ZMEI ULFCWQK NPBZZJSQGP BBX XXCZMYH GNIKBJXS JB NYK OLV, HF GBRRZ GIQFBX FAF LWWBBX, NNOWIGFF NYK QRWE NOS SK, KH WSBZF WOUKX ZO HBV HSDGSFG, QV YVDPW GWAYZ CQ XSF ZUEJWQK RSCOEJG, ZI DIOFC LWJLE JB NYK TLIWEG UEJ WQ XSF GNIKSWW, HF GBRRZ IMRIH CE ZVH LTMZM; NK GKEWM BYMKF VYCSSHUKF, DRO FJYE OT, ZLTDV C UU BRX QPF U DUAHRE CSFZKJH, XSJG CJROQH ZS O FRXUH TLSH IW OH ZICF GOSDIJEEFR UEJ GWECWWHX, ZVHR ZVF YDVWUI MFMIEJ HKI DFOM, RXAHH LOR ALGFGIO CM NYK PUMEJGB WRSHX, HPIFU IOUVJ PB NYK GWVFHUFV, ABWMW, JB AFJ'G JSZE HCDK, HKI YFK QFXZG, ATUV UCR WWW APKYI GBG QTHVN, JZSSW QPFNY ZC WLP SSMTAS DRO UVY COPHVLUWIE UT WLP PZX.")
     print("\n------------------------" +
           "\nCRACKING VIGENERE CIPHER" +
           "\n------------------------\n" +
