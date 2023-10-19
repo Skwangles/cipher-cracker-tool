@@ -100,6 +100,45 @@ def get_english_percent(input):
     return round((english_word_count / len(input_words)) * 100, 2)
 
 
+# just count number of possible words in the text. overlap with other words not checked if no spaces
+def get_english_word_count(input):
+    """Counts the number of english words in a piece of text"""
+
+    if not input:
+        print("Missing input text to calculate english word count")
+        return None
+    
+    #punctionation and numbers arent part of english words, so remove them
+    input = re.sub("[^A-Za-z\\s]", "", input).lower()
+
+    #if our global set of english words isnt available yet, go get them
+    global english_words
+    if not english_words:
+        try:
+            nltk.data.find('corpora/words.zip')
+        except LookupError:
+            nltk.download('words')
+
+        english_words = set(words.words())
+    
+    
+    #normal case. spaced-words
+    if ' ' in input:  
+        #search our text for english words
+        return sum(1 for word in input.split() if word in english_words)
+    
+    #no spaces: count dictionary words
+    else:
+        english_word_count = 0
+        sum_word_lengths = 0 #dont need to store individual words
+        
+        for word in english_words:
+            if word.lower() in input:
+                english_word_count += 1
+                sum_word_lengths += len(word)
+
+        return english_word_count
+
 def get_alphabet():
     alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     return alphabet
