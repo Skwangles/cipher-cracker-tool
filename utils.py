@@ -135,7 +135,7 @@ def modInverse(A, M):
     except ValueError:
         raise ValueError("No modular inverse for {} and {}".format(A, M))
 
-def calc_e_d(p, q, e=11):
+def calc_e_d(p, q, e=270679):
     
     fi_n = (p-1)*(q-1)
     
