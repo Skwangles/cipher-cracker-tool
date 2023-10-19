@@ -6,6 +6,32 @@ _Note: You must be running atleast Python 3.10 - otherwise the 'match' statement
 Install libraries:  
 `pip install -r requirements.txt`
 
+```
+usage: main.py [-h] [--encrypt] [--decrypt] [--crack] [--generate] {caesar,rsa,elgamal,massey,simple,feistel,vigenere} ...
+
+Encrypt, decrypt or crack a cipher text.
+
+options:
+  -h, --help            show this help message and exit
+
+cipher:
+  {caesar,rsa,elgamal,massey,simple,feistel,vigenere}
+                        Cipher types - rsa, caesar, simple, feistel
+    caesar              Caesar Cipher
+    rsa                 RSA Cipher
+    elgamal             RSA Cipher
+    massey              Massey-Omura cryptosystem
+    simple              Simple Substitution Cipher
+    feistel             Feistel Cipher
+    vigenere            Vigenere Cipher
+
+action:
+  --encrypt, -e         Encrypt the plain text
+  --decrypt, -d         Decrypt the cipher text
+  --crack, -c           Crack the cipher text
+  --generate, -g        Generate a key
+```
+
 Current system usage:  
 `python main.py -h`
 
@@ -18,21 +44,24 @@ Caesar Cipher example:
 Simple Cipher example:  
 `python main.py --encrypt simple -t -k abcdefghijklmnopqrstuv` (Key must be 26 letters)
 
-Vigenere Cipher example:
+Vigenere Cipher example:  
 `python main.py --encrypt vigenere -t test -k cars`
 
-## Git etiquette
+RSA Cipher example:  
+`python main.py  --encrypt rsa -t 95 -n 58687709 -e 270679`
 
-Feature branches, then merge into main - please do not directly commit main if you can avoid it.
+Massey Omura Cipher example:  
+`python main.py --encrypt massey -t 104 -p 3433 -a 1697 -b 31`
+
+El Gamal Cipher example:  
+`python main.py  --encrypt elgamal -t 42 -k 1343 -y 1828 -a 30 -p 13757`
 
 ## Ciphers we are doing
-
-_May change after seeing lectures_
 
 - Caesar cypher;
 - Simple Substitution;
 - Vigenere cypher;
-- Feistel cypher;
+- Feistel cypher (No Crack);
 - Massey-Omura;
 - R.S.A.;
 - ElGamal
