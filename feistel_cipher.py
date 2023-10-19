@@ -9,10 +9,10 @@ ALPHABET = "abcdefghijklmnopqrstuvwxyz0123456789"
 
 def get_sub_key(key, round, block_size=16):
     """Generates subkey through a relationship with the main key"""
-    # Hash the main key - add 'round' to change the result
+    # Hash the main key - append the  'round #' to change the result
     hashed_key = string_to_binary(str(hashlib.sha256((key + "_" + str(round)).encode()).hexdigest()))
     
-    # Case hash is too small
+    # Repeat hash if too short for the feistel network's L half
     if len(hashed_key) < block_size:
         hashed_key = hashed_key + hashed_key * (block_size // len(hashed_key))
         return hashed_key[:block_size]
@@ -21,7 +21,7 @@ def get_sub_key(key, round, block_size=16):
  
 
 def encrypt(text, key="", rounds=16):
-    """Encrypts the text using the key"""
+    """Encrypts the text using the key - calling the feistel network x rounds"""
   
     if not key or len(key) == 0:
         return "No key provided"   
@@ -29,23 +29,23 @@ def encrypt(text, key="", rounds=16):
     print("Removing all non-alphanumeric characters from text")
     text = re.sub("[^a-zA-Z0-9\\s]+", "", text)
     
-    bin = string_to_binary(text)
+    # binary is used for the feistel cipher, so convert to binary
+    binary_string = string_to_binary(text)
     
     # sanity check - should never happen
-    if len(bin) % 2 != 0: 
+    if len(binary_string) % 2 != 0: 
         print("Text is not a multiple of 2, padding with a 0")
-        bin += "0"
+        binary_string += "0"
 
-    # Split the binary string in half
-    L = bin[:len(bin)//2]
-    R = bin[len(bin)//2:]
-    
-    # Convert to output type
+    L = binary_string[:len(binary_string)//2]
+    R = binary_string[len(binary_string)//2:]
+
+
     return binary_to_hex(str(feistel_cipher(L, R, key=key, rounds=rounds)))
 
 
 def decrypt(cypher_text, key="", rounds=16):
-    """Decrypts the cypher text using the key - cypher text must be a binary string"""
+    """Decrypts the cypher text using the key - cypher text must be a hex string"""
     
     if re.match("^[a-f0-9A-F]+$", cypher_text) is None:
         raise Exception("Cypher text is not a binary string")
@@ -56,7 +56,7 @@ def decrypt(cypher_text, key="", rounds=16):
     # binary is used for the feistel cipher, so convert to binary
     cypher_text = hex_to_binary(str(cypher_text))
     
-    
+    # feistel network has two even halves as input - so split binary string in half
     L= cypher_text[:len(cypher_text)//2]
     R= cypher_text[len(cypher_text)//2:]
     
@@ -77,10 +77,13 @@ def feistel_cipher(L, R, key, rounds=16, reversed=False):
         if reversed:
             position = (rounds-1) - i 
             
+        # using the key generate a sub-key to then obscure the right half
         pre_xor_Ri = f_func(Ri_less_1, get_sub_key(str(key), position, block_size=len(Ri_less_1)))
 
         # XOR the output of the f function with the left half
         Ri = xor_string_and_key(Li_less_1, pre_xor_Ri)
+        
+        # Old right half becomes left half unchanged
         Li = Ri_less_1
 
         # Pass output to next round
@@ -92,7 +95,7 @@ def feistel_cipher(L, R, key, rounds=16, reversed=False):
 
 
 def f_func(text, key):
-    """The f function used in the Feistal cipher"""
+    """The f function used in the Feistal cipher - xor text with sub-key"""
     return xor_string_and_key(text, key)
 
 

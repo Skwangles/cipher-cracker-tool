@@ -69,11 +69,6 @@ def xor_string_and_key(string, key):
     return output
 
 
-def random_key(length=3):
-    """Generates a random key of the given length"""
-    alphabet = "abcdefghijklmnopqrstuvwxyz0123456789"
-    return "".join(random.choice(alphabet.ascii_lowercase) for i in range(length))
-
 #store the set of words globally so we dont have to spend ages getting them each time
 english_words = None 
 
@@ -84,6 +79,7 @@ def get_english_percent(input):
         print("Missing input text to calculate english word %")
         return None
     
+    #punctionation and numbers arent part of english words, so remove them
     input = re.sub("[^A-Za-z\\s]", "", input).lower()
 
     #if our global set of english words isnt available yet, go get them
@@ -103,13 +99,16 @@ def get_english_percent(input):
     english_word_count = sum(1 for word in input.split() if word.lower() in english_words)
     return round((english_word_count / len(input_words)) * 100, 2)
 
+
 def get_alphabet():
     alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
     return alphabet
 
+
 def get_random_number(min=0, max=100):
     """Returns a random number between min and max"""
     return random.randint(min, max)
+
 
 def frequency_analysis(cipher_text):
     """Returns frequencies of each letter in a string"""   
@@ -137,13 +136,13 @@ def modInverse(A, M):
 
 def calc_e_d(p, q, e=11):
     
-    fi_n = (p-1)*(q-1)
+    phi_n = (p-1)*(q-1)
     
-    if e > fi_n:
+    if e > phi_n:
         print("fi_n is too small for default e, generating a new e")
-        e = sympy.randprime(2, fi_n)
+        e = sympy.randprime(2, phi_n)
         
-    d = modInverse(e, fi_n)
+    d = modInverse(e, phi_n)
     return [e, d]
 
 
