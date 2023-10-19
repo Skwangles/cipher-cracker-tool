@@ -52,7 +52,7 @@ def factorise_in_parallel(n):
     return result
 
 
-def crack_n_return_key(n, e):
+def crack_n_return_key(n, e, factor_db=True):
     """Finds p, q, and d given n and e"""
     
     p = 0
@@ -81,7 +81,7 @@ def crack_n_return_key(n, e):
     return [p, q, d]
 
 
-def get_d_from_e_mod_n(p, q, e=11):
+def get_d_from_e_mod_n(p, q, e=270679):
     """Given P and Q, calculate the inverse of e mode (p*q) - return d"""
     fi_n = (p-1)*(q-1)
     
@@ -120,9 +120,9 @@ def decrypt(c, n, d):
     return pow(c, d, n)
 
 
-def crack(c, n, e):
+def crack(c, n, e, factor_db=True):
     """Cracks the cypher text, returning the original message"""
-    val = crack_n_return_key(n, e)
+    val = crack_n_return_key(n, e, factor_db)
     if val == None:
         return "Could not determine p, q, or d"
     [p, q, d] = val
