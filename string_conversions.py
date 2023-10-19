@@ -43,6 +43,7 @@ def hex_to_string(hex):
     return output 
 
 def is_hex(hex):
+    """Checks if a string is a valid hex string"""
     hex = str(hex).replace(" ", "")
     if re.match("[^a-fA-F0-9]+", hex):
         return False
