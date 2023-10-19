@@ -50,19 +50,22 @@ def find_prime_parallel(n):
     return result
 
 
-def find_p_q_d(n, e):
+def find_p_q_d(n, e, factor_db=True):
     """Finds p, q, and d given n and e"""
     
     p = 0
     q = 0
     d = 0
 
-    fdb = attacks.factordb_shortcut(n)
-    if fdb != None:
-        [p, q] = fdb
-    else:
-        [p, q] = find_prime_parallel(n)
+    if factor_db:
+        # Use the factor db to find p and q
+        fdb = attacks.factordb_shortcut(n)
+        if fdb != None:
+            [p, q] = fdb
     
+    if p == 0 or q == 0:
+        # Use the parallelised attacks to find p and q
+        [p, q] = find_prime_parallel(n)
             
     # Find d
     fi_n = (p-1)*(q-1)
@@ -86,19 +89,25 @@ def encrypt(m, n, e):
 
 
 def decrypt(c, n, d):
-    """Decrypts the cypher text using the key"""
+    """Decrypts the cypher text using the d (inverse of e, phi(n))"""
+    
+    # d is the inverse of e, so d undoes m^e - which gives m
     return pow(c, d, n)
 
 
-def crack(c, n, e):
+def crack(c, n, e, factor_db=True):
     """Cracks the cypher text, returning the key"""
-    val = find_p_q_d(n, e)
+    
+    val = find_p_q_d(n, e, factor_db)
+    
     if val == None:
         return "Could not determine p, q, or d"
     [p, q, d] = val
+    
     print("p:", p)
     print("q:", q)
     print("d:", d)
+    
     return decrypt(c, n, d)
     
 if __name__ == "__main__":
@@ -130,5 +139,5 @@ if __name__ == "__main__":
     print("Decrypted:", decrypt(c, n, d))
     
     # Crack a message
-    print("Cracked:", crack(c, n, e))
+    print("Cracked:", crack(c, n, e, False))
     
