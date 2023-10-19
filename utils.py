@@ -129,31 +129,11 @@ def frequency_analysis(cipher_text):
 
     return sorted_freq
 
+
 def modInverse(A, M):
+    """Utilise built in pow function to calculate modular inverse - notify user if no inverse exists"""
     try:
         return pow(A, -1, M)
     except ValueError:
+        # Raise a more helpful error message - which includes the numbers that were used
         raise ValueError("No modular inverse for {} and {}".format(A, M))
-
-def calc_e_d(p, q, e=270679):
-    
-    fi_n = (p-1)*(q-1)
-    
-    if e > fi_n:
-        print("fi_n is too small for default e, generating a new e")
-        e = sympy.randprime(2, fi_n)
-        
-    d = modInverse(e, fi_n)
-    return [e, d]
-
-
-def get_primes(min, max, is_weak=False):
-    p = sympy.randprime(min, max)
-    q = 0
-    if is_weak:
-        q = sympy.nextprime(sympy.nextprime(p))
-    else:
-        q = sympy.randprime(min, max)
-        while p == q:
-            q = sympy.randprime(min, max)
-    return [p, q]

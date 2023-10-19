@@ -1,6 +1,6 @@
 import random
 import math
-import utils
+from utils import *
 import sympy
 from multiprocessing import Process, Queue
 import concurrent.futures
@@ -12,20 +12,22 @@ RSA_PRIME_MIN = 100_000_000
 
 def generate_weak_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
     """Generates a weak key, where p and q are close together"""
-    [p, q] = utils.get_primes(min, max, True)
-    [e, d] = utils.calc_e_d(p, q)
+    [p, q] = get_primes(min, max, True)
+    [e, d] = get_d_from_e_mod_n(p, q)
     
     return [p, q, d, e, p*q]
 
 
 def generate_strong_key(min=RSA_PRIME_MIN, max=RSA_PRIME_MAX):
-    [p,q] = utils.get_primes(min, max, False)
-    [e, d] = utils.calc_e_d(p, q)
+    """Generates a strong key, where p and q are completely randomly chosen (hopefully not close together)"""
+    [p,q] = get_primes(min, max, False)
+    [e, d] = get_d_from_e_mod_n(p, q)
     
     return [p, q, d, e, p*q]
 
 
-def find_prime_parallel(n):
+def factorise_in_parallel(n):
+    """Finds p and q given n, using multiple processes to speed up the search with Fermat's factorisation and brute force"""
     result_queue = Queue()
 
     # multiprocess the attacks
@@ -50,7 +52,7 @@ def find_prime_parallel(n):
     return result
 
 
-def find_p_q_d(n, e, factor_db=True):
+def crack_n_return_key(n, e):
     """Finds p, q, and d given n and e"""
     
     p = 0
@@ -65,11 +67,13 @@ def find_p_q_d(n, e, factor_db=True):
     
     if p == 0 or q == 0:
         # Use the parallelised attacks to find p and q
-        [p, q] = find_prime_parallel(n)
+        [p, q] = factorise_in_parallel(n)
             
-    # Find d
+    # Prime factors of n allow us to calculate phi(n) easily
     fi_n = (p-1)*(q-1)
-    d = utils.modInverse(e, fi_n)
+    
+    # d is inverse of e mod phi(n)
+    d = modInverse(e, fi_n)
     
     if p == 0 or q == 0 or d == 0:
         return None
@@ -77,10 +81,33 @@ def find_p_q_d(n, e, factor_db=True):
     return [p, q, d]
 
 
+def get_d_from_e_mod_n(p, q, e=11):
+    """Given P and Q, calculate the inverse of e mode (p*q) - return d"""
+    fi_n = (p-1)*(q-1)
+    
+    if e > fi_n:
+        print("fi_n is too small for default e, generating a new e")
+        e = sympy.randprime(2, fi_n)
+        
+    d = modInverse(e, fi_n)
+    return [e, d]
+
+
+def get_primes(min, max, is_weak=False):
+    """Get two prime numbers between min and max, optionally close together"""
+    p = sympy.randprime(min, max)
+    q = 0
+    if is_weak:
+        q = sympy.nextprime(sympy.nextprime(p))
+    else:
+        q = sympy.randprime(min, max)
+        while p == q:
+            q = sympy.randprime(min, max)
+    return [p, q]
 
 
 def encrypt(m, n, e):                 
-    """Encrypts the text using the key"""
+    """Encrypts the text using the e and n as a modulus"""
     if m > n:
         # m cannot be larger than N, otherwise it will lose information
         raise ValueError("Message is too long to encrypt with this key")
@@ -89,25 +116,22 @@ def encrypt(m, n, e):
 
 
 def decrypt(c, n, d):
-    """Decrypts the cypher text using the d (inverse of e, phi(n))"""
-    
-    # d is the inverse of e, so d undoes m^e - which gives m
+    """Decrypts the cypher text using the inverse of e mod phi(n)"""
     return pow(c, d, n)
 
 
-def crack(c, n, e, factor_db=True):
-    """Cracks the cypher text, returning the key"""
-    
-    val = find_p_q_d(n, e, factor_db)
-    
+def crack(c, n, e):
+    """Cracks the cypher text, returning the original message"""
+    val = crack_n_return_key(n, e)
     if val == None:
         return "Could not determine p, q, or d"
     [p, q, d] = val
     
+    print("--- Cracked Values ---")
     print("p:", p)
     print("q:", q)
     print("d:", d)
-    
+    print("Message:")
     return decrypt(c, n, d)
     
 if __name__ == "__main__":
