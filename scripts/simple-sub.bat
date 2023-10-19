@@ -3,7 +3,7 @@ echo #### Encrypt ####
 python main.py --encrypt simple -t "Roads? Where we're going we don't need roads" -k "AZERTYUIOPQSDFGHVKLMWXCJBN"
 
 echo #### Decrypt ####
-python main.py --decrypt simple -t "KDPGR? TEIKI TI'KI MDAFM TI GDF'C FIIG KDPGR" -k "AZERTYUIOPQSDFGHVKLMWXCJBN"
+python main.py --decrypt simple -t "KGARL? CITKT CT'KT UGOFU CT RGF'M FTTR KGARL" -k "AZERTYUIOPQSDFGHVKLMWXCJBN"
 
 
 echo #### Crack ####
