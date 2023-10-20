@@ -1,4 +1,4 @@
-from utils import get_english_percent
+from utils import get_english_word_count
 
 def encrypt(text, key, shift_digits=False):
     """Encrypts the text using the key. Optionally shift digits as well as letters"""
@@ -33,7 +33,7 @@ def decrypt(cipher_text, key, shift_digits=False):
 
 #uses brute force and english word counting to sort the output by most probable to least probable decrypt key
 def crack(cipher_text, shift_digits=False):
-    """Cracks the cipher text using brute force, returning all the possible texts and keys, sorted by number of matching english words"""
+    """Cracks the cipher text using brute force, returning all the possible texts and keys, sorted by number of matching possible english words"""
     
     #check for empty inputs
     if not cipher_text or len(cipher_text) == 2 and cipher_text[0] == cipher_text[1] == "'": return "Empty cipher text. Nothing to crack"
@@ -51,25 +51,26 @@ def crack(cipher_text, shift_digits=False):
         else: 
             decrypted_text = decrypt(cipher_text, key, shift_digits)[1:-1]
 
-        percentage_english = get_english_percent(decrypted_text)
-        results.append((key, decrypted_text, percentage_english))
+        #count eng words for readability check
+        eng_word_count = get_english_word_count(decrypted_text)
+        results.append((key, decrypted_text, eng_word_count))
 
     results.sort(key=lambda result: result[2], reverse=True)
 
     #if one result is more english than the rest, only show that result
     if results[0][2] > results[1][2]:
-        key, text, english_percent = results[0]
-        return f"key: {key}\t\ttext: '{text}'\t\tenglish: {english_percent}%"
+        key, text, english_count = results[0]
+        return f"key: {key}\t\ttext: '{text}'\t\tenglish words: {english_count}"
     
     #show all results with some english if none is the best
     elif results[0][2] == results[1][2] and results[0][2] > 0:
-        non_zero_results = [(key, text, english_percent) for key, text, english_percent in results if english_percent > 0]
+        non_zero_results = [(key, text, english_count) for key, text, english_count in results if english_count > 0]
         if non_zero_results:
-            return '\n'.join(f"key: {key}\t\ttext: '{text}'\t\tenglish: {english_percent}%" for key, text, english_percent in non_zero_results)
+            return '\n'.join(f"key: {key}\t\ttext: '{text}'\t\tenglish words: {english_count}" for key, text, english_count in non_zero_results)
 
     #case: no english. show all results
     else:
-        return '\n'.join(f"key: {key}\t\ttext: '{text}'\t\tenglish: {english_percent}%" for key, text, english_percent in results)
+        return '\n'.join(f"key: {key}\t\ttext: '{text}'\t\tenglish words: {english_count}" for key, text, english_count in results)
      
 
 if __name__ == "__main__":
@@ -111,3 +112,6 @@ if __name__ == "__main__":
     print("Test encrypt/decrypt: include digits")
     print(encrypt("the fat cat sat on the mat 12345", 2, True))
     print(decrypt("vjg hcv ecv ucv qp vjg ocv 34567", 2, True))
+
+    print("no spaces crack")
+    print(crack("pohcltfzlsmmbssjvumpklujlaohapmhsskvaolpykbafpmuvaopunpzulnsljalkhukpmaolilzahyyhunltluazhylthklhzaolfhylilpunthkldlzohsswyvclvbyzlsclzvujlhnhpuhislavklmlukvbypzshukovtlavypklvbaaolzavytvmdhyhukavvbaspclaoltluhjlvmafyhuufpmuljlzzhyfmvyflhyzpmuljlzzhyfhsvulhahufyhalaohapzdohadlhylnvpunavayfavkvaohapzaolylzvsclvmopzthqlzafznvclyutlualclyfthuvmaoltaohapzaoldpssvmwhysphtluahukaoluhapvuaoliypapzoltwpylhukaolmylujoylwbispjspurlkavnlaolypuaolpyjhbzlhukpuaolpyullkdpssklmlukavaolklhaoaolpyuhapclzvpshpkpu"))

@@ -2,26 +2,10 @@ import random
 import string
 from alive_progress import alive_bar
 from utils import *
-from nltk.corpus import words 
 import re
 
-# Reference alphabets
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-FREQUENCY_ALPHABET = "ETAOINSHRDLCUMWFGYPBVKJXQZ"
-
-english_words = None
-
-# Imports nltk dictionary
-if not english_words:
-    try:
-        nltk.data.find('corpora/words.zip')
-    except LookupError:
-        nltk.download('words')
-
-    english_words = set(words.words())
-
-word_patterns = {}
-
+ABSOLUTE_MINIMUM = int(-1e99)
 
 #Generate key if one is not supplied
 def generate_key():
@@ -30,6 +14,18 @@ def generate_key():
     # Returns random, shuffled key
     return dict(zip(alphabet, shuffled))
 
+
+def get_english_frequencies():
+    # Approximate frequency of letters in the English language.
+    # You can adjust these values based on more detailed studies.
+    return {
+        'A': 0.08167, 'B': 0.01492, 'C': 0.02782, 'D': 0.04253, 'E': 0.12702,
+        'F': 0.02228, 'G': 0.02015, 'H': 0.06094, 'I': 0.06966, 'J': 0.00153,
+        'K': 0.00772, 'L': 0.04025, 'M': 0.02406, 'N': 0.06749, 'O': 0.07507,
+        'P': 0.01929, 'Q': 0.00095, 'R': 0.05987, 'S': 0.06327, 'T': 0.09056,
+        'U': 0.02758, 'V': 0.00978, 'W': 0.02360, 'X': 0.00150, 'Y': 0.01974, 'Z': 0.00074
+    }
+    
 
 def encrypt(text, key):
     """Encrypt the plain text using the key"""
@@ -90,279 +86,114 @@ def crack(cypher_text):
     if not cypher_text:
         return "Missing required arguments for this function"    
     
-    # Frequency order#
-    mapping = get_empty()
-        
+    # Remove non-alphabetic characters, cracking only uses letters
     cypher_text = cypher_text.upper()
     cypher_text = re.sub(r'[^A-Z\s]', '', cypher_text)
     
-    # Inital pass to find words that could match each chunk in the cipher text
-    encrypted_words = cypher_text.split(" ")
+    frequencies = get_english_frequencies()
+    cipher_frequencies = {char: cypher_text.count(char) / len(cypher_text) for char in ALPHABET}
     
-    # Sort list to check longest word first
-    encrypted_words = sorted(encrypted_words, key=len, reverse=True)
-        
-    with alive_bar(len(encrypted_words)) as bar:
-        # For each word chunk
-        for c_word in encrypted_words:
-            pattern = get_pattern_of_unique(c_word)
-            
-            if pattern not in word_patterns:
-                continue            
+    # Frequency analysis letters to build a starting point for the mapping
+    sorted_english = sorted(frequencies.keys(), key=lambda x: frequencies[x], reverse=True)
+    sorted_cipher = sorted(cipher_frequencies.keys(), key=lambda x: cipher_frequencies[x], reverse=True)
+    
+    # Create a mapping between the cipher letter and the estimated English letter
+    mapping = get_empty()
+    for cipher_letter, english_letter in zip(sorted_cipher, sorted_english):
+        mapping[cipher_letter] = english_letter
 
-            single_word_map = get_empty()
-            # For each word with same pattern
-            for possible_word in word_patterns[pattern]:
-                for i in range(len(c_word)):
-                    if c_word[i] in single_word_map:
-                        letter = possible_word[i]
-                        if letter not in single_word_map[c_word[i]]:
-                            single_word_map[c_word[i]].append(letter)
-            # Update prog bar
-            bar()
-            # Add guess to map
-            mapping = addGuessesToMap(mapping, single_word_map)
-    
-    # Refine by collapsing resolved letters     
-    mapping = collapse_solved_letters(mapping, frequency_analysis(cypher_text).upper())
-    print(mapping)
-    
-    # Call hillclimb function to refine key
-    local_maxima = hill_climb_blank(hill_climb_undecided(mapping, cypher_text), cypher_text)
+    # Randomly swap letters in the mapping, gradually improving the 'fitness' of the mapping
+    hill_climbed_map = hill_climb(mapping, cypher_text)    
 
-    # Prints and returns key
-    print("Key:", mapping_to_key(local_maxima))
-    return apply_mapping_to_text(cypher_text, local_maxima)
+    print("Key:", mapping_to_key(hill_climbed_map))
+    return apply_mapping_to_text(cypher_text, hill_climbed_map)
+
 
 ### Formatting/Utils ###
 
-def get_missing_letters(mapping):
-    """Returns missing letters from mapping"""
-    present_letters = set()
-    for key in mapping:
-        if len(mapping[key]) != 0:
-            for letter in mapping[key]:
-                present_letters.add(letter)
-                
-    missing_letters = []
-    for letter in ALPHABET:
-        if letter not in present_letters:
-            missing_letters.append(letter)
-    return missing_letters
-
-
-def mapping_to_key(mapping):
-    """Converts current mapping to key"""
-    keys = sorted(mapping.items(), key=lambda x: x[1])
-    return "".join(key[0] for key in keys)
-        
-
-def get_empty():
-    
-    return {
-        'A': [],
-        'B': [],
-        'C': [],
-        'D': [],
-        'E': [],
-        'F': [],
-        'G': [],
-        'H': [],
-        'I': [],
-        'J': [],
-        'K': [],
-        'L': [],
-        'M': [],
-        'N': [],
-        'O': [],
-        'P': [],
-        'Q': [],
-        'R': [],
-        'S': [],
-        'T': [],
-        'U': [],
-        'V': [],
-        'W': [],
-        'X': [],
-        'Y': [],
-        'Z': []
-        }    
-
-def count_of_items_with_1(mapping):
-    """Counts number of keys that have one value"""
-    count = 0
-    for key in mapping:
-        if len(mapping[key]) == 1:
-            count += 1
-    return count
-
-
-def collapse_solved_letters(mapping, frequency_order=FREQUENCY_ALPHABET):
-    """Collapses resolved keys in mapping"""
-    unsolved_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    with alive_bar(len(unsolved_letters)) as bar:
-        while unsolved_letters and any(len(mapping[letter]) == 1 for letter in unsolved_letters):
-            letters_with_1 = [letter for letter in unsolved_letters if len(mapping[letter]) == 1]
-        
-            
-            # Order by highest frequency
-            letters_with_1.sort(key=lambda x: frequency_order.find(x))
-            print(letters_with_1)
-            
-            for letter in letters_with_1:
-                if len(mapping[letter]) != 1:
-                    continue
-                
-                # Update prog bar
-                bar()
-                
-                solved_letter = mapping[letter][0]
-                
-                unsolved_letters = unsolved_letters.replace(letter, "")
-                
-                # Remove solved letter from all other mappings
-                for key in unsolved_letters:
-                    if key == letter:
-                        continue
-                    
-                    if solved_letter in mapping[key]:
-                        mapping[key].remove(solved_letter) 
-    return mapping
-            
- 
-def addGuessesToMap(root_map, single_map):
-    """Reduces the root_map to only contain letters that are in both root_map and single_map"""
-    intersection = get_empty()
-    for key in root_map:
-        if key not in single_map:
-            intersection[key] = root_map[key]
-            continue
-        
-        for letter in root_map[key]:
-            if letter in single_map[key]:
-                intersection[key].append(letter)
-        
-        # If root_map and single_map have no letters in common, join them
-        if len(intersection[key]) == 0:
-            intersection[key] = root_map[key] + single_map[key]
-        
-    return intersection
-
-EARLY_EXIT = 80 # Accept 80% to avoid falling into brute force
-
-def hill_climb_undecided(mapping, cypher_text):
-    """Perform hillclimb to refine mapping"""
-    non_empty = filter(lambda x: len(x[1]) > 1, mapping.items())
-    non_solved = sorted(non_empty, key=lambda x: len(x[1]))
-    
-    if len(non_solved) == 0:
-        return mapping
-    
-    letter, possible = non_solved[0]
-    
-    print("Hill climbing", letter, "with", len(possible), "possibilities")
-    best_match = None
-    best_match_percent = -1
-
-    # Try each possible mapping for letter
-    for guess in possible:
-        print("Guessing", letter, "is", guess)
-        # Add guesses to map
-        new_mapping = collapse_solved_letters(addGuessesToMap(mapping, {letter: [guess]}))
-        # Decrypt using guess
-        decrypted = apply_mapping_to_text(cypher_text, new_mapping)
-        # Check acc score
-        percent = get_english_percent(decrypted)
-        print(percent)
-        if percent > best_match_percent:
-            best_match = new_mapping
-            best_match_percent = percent
-            if percent > EARLY_EXIT:
-                print("Early exit")
-                return best_match
-    # If mapping is not found, return the best          
-    if best_match_percent == -1:
-        print("No matches found")
-        return mapping
-    return hill_climb_undecided(best_match, cypher_text)
-
-def hill_climb_blank(mapping, cypher_text):
-    """Perform hillclimb on blank letters"""
-    if any(len(mapping[letter]) > 1 for letter in mapping):
-        print("You must have completely 'solved' all letters before running this!")
-        raise ValueError("Must completely solve before filling blanks")
-    
-    unassigned = get_missing_letters(mapping)
-    empty_spots = list(filter(lambda x: len(x[1]) == 0, mapping.items()))
-    
-    best_match = None
-    best_match_percent = -1
-    
-    # Check if all blanks are filled
-    if len(empty_spots) == 0:
-        return mapping
-    
-    letter, _ = empty_spots[0]
-    print("Hill climbing", letter, "with", len(unassigned), "possibilities")
-    
-    # Try each possible mapping for letter
-    for guess in unassigned:
-        # Add guesses to map
-        new_mapping = collapse_solved_letters(addGuessesToMap(mapping, {letter: [guess]}))
-        # Decrypt using guess
-        decrypted = apply_mapping_to_text(cypher_text, new_mapping)
-        # Check acc score
-        percent = get_english_percent(decrypted)
-        print(percent)
-        if percent > best_match_percent:
-            best_match = new_mapping
-            best_match_percent = percent
-            if percent > EARLY_EXIT:
-                print("Early exit")
-                return best_match
-                
-    if best_match_percent == -1:
-        print("No matches found")
-        return mapping
-    
-    return hill_climb_blank(best_match, cypher_text)
-    
-
-def get_pattern_of_unique(word):
-    """Generate number patternfor unique word"""
-    letters = {}
-    output = ""
-    num = 0
-    separator = "|"
-    for letter in word:
-        if letter not in letters:
-            num += 1
-            letters[letter] = num
-        output += separator + str(letters[letter]) # e.g. "1|2|3|4..."
-    return output
-
-def apply_mapping_to_text(cypher_text, mapping): 
-    """Decrypt cipher text according to mapping"""
+def apply_mapping_to_text(cypher_text, mapping, separator="*"): 
+    """Returns the cypher text with the mapping applied"""
     decrypted = ""
     for letter in cypher_text:
         if letter.upper() in mapping:
-            if len(mapping[letter.upper()]) > 1 or len(mapping[letter.upper()]) == 0:
-                decrypted += "*"
+            if mapping[letter.upper()] is None:
+                decrypted += separator
             else:
-                decrypted += mapping[letter.upper()][0]
+                decrypted += mapping[letter.upper()]
         else:
             decrypted += letter
 
     return decrypted
 
-# Global store of words for future use
-for word in english_words:
-    pattern = get_pattern_of_unique(word)
-    if pattern not in word_patterns:
-        word_patterns[pattern] = [word.upper()]
-    else:
-        word_patterns[pattern].append(word.upper())
 
+def mapping_to_key(mapping):
+    """Returns key string based on alphabetical order of 'values' of the mappings"""
+    keys = sorted(mapping.items(), key=lambda x: x[1])
+    return "".join(key[0] for key in keys)   
+
+
+def get_empty():
+    """Returns an empty mapping - with all letters of the alphabet"""
+    return {
+        'A': None,
+        'B': None,
+        'C': None,
+        'D': None,
+        'E': None,
+        'F': None,
+        'G': None,
+        'H': None,
+        'I': None,
+        'J': None,
+        'K': None,
+        'L': None,
+        'M': None,
+        'N': None,
+        'O': None,
+        'P': None,
+        'Q': None,
+        'R': None,
+        'S': None,
+        'T': None,
+        'U': None,
+        'V': None,
+        'W': None,
+        'X': None,
+        'Y': None,
+        'Z': None
+        }    
+
+### Hill Climb to find local maxima ###
+
+def hill_climb(mapping, cypher_text):
+    best = mapping
+    # Gets fitness score
+    best_fitness = get_english_score(apply_mapping_to_text(cypher_text, best))
+    with alive_bar(2500) as bar:
+        # Hill climb for 2500 iterations
+        for i in range(2500):
+            new_map = swap_randomly(best.copy())
+            new_percent = get_english_score(apply_mapping_to_text(cypher_text, new_map))
+            # Checks if new fitness score is better
+            if new_percent > best_fitness:
+                best = new_map
+                best_fitness = new_percent
+            bar()
+    # Returns best fitness function
+    return best
+
+def swap_randomly(mapping):
+    # Generates two random keys
+    key1 = random.randrange(0, len(ALPHABET))
+    key2 = random.randrange(0, len(ALPHABET))
+    while key1 == key2:
+        key2 = random.randrange(0, len(ALPHABET))
+    
+    temp = mapping[ALPHABET[key1]]
+    mapping[ALPHABET[key1]] = mapping[ALPHABET[key2]]
+    mapping[ALPHABET[key2]] = temp
+    # Returns keys
+    return mapping
 
 if __name__ == "__main__":
     text = """The cab arrived late. The inside was in as bad of shape as the outside which was concerning, and it didn't appear that it had been cleaned in months. The green tree air-freshener hanging from the rearview mirror was either exhausted of its scent or not strong enough to overcome the other odors emitting from the cab. The correct decision, in this case, was to get the hell out of it and to call another cab, but she was late and didn't have a choice.
@@ -380,5 +211,6 @@ if __name__ == "__main__":
     print("Decrypted:", decrypted)
     cracked = crack(encrypted)
     print("Cracked:", cracked)
-    print("Cracked %:", get_english_percent(cracked))
+    print("Original:", get_english_score(text))
+    print("Cracked:", get_english_score(cracked))
     print("Actual Key:", key.upper())   

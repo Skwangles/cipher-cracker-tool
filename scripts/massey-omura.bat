@@ -1,10 +1,10 @@
 @echo off
 echo #### Encrypt ####
-python main.py massey --encrypt -t 42 -p 61 -a 3 -b 8 -1 22 -2 44 -3 13
+python main.py --encrypt massey -t 104 -p 3433 -a 1697 -b 31
 
 echo #### Decrypt ####
-python main.py massey --decrypt -t 22 -p 61 -a 3 -b 8 --step1 22 --step2 44 --step3 13
+python main.py --decrypt massey -t 132 -p 3433 -b 31
 
 echo #### Crack ####
-python main.py massey  --crack -t 22 -p 61 -a 3 -b 8
+python main.py --crack massey -1 3157 -2 2164 -3 132 -p 3433
 
