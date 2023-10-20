@@ -7,8 +7,8 @@ import re
 ALPHABET = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 ABSOLUTE_MINIMUM = int(-1e99)
 
-#Generate key if one is not supplied
 def generate_key():
+    """Generate key"""
     alphabet = list(string.ascii_lowercase)
     shuffled = random.sample(alphabet, len(alphabet))
     # Returns random, shuffled key
@@ -16,8 +16,7 @@ def generate_key():
 
 
 def get_english_frequencies():
-    # Approximate frequency of letters in the English language.
-    # You can adjust these values based on more detailed studies.
+    # Approximate letter freq
     return {
         'A': 0.08167, 'B': 0.01492, 'C': 0.02782, 'D': 0.04253, 'E': 0.12702,
         'F': 0.02228, 'G': 0.02015, 'H': 0.06094, 'I': 0.06966, 'J': 0.00153,
@@ -86,23 +85,23 @@ def crack(cypher_text):
     if not cypher_text:
         return "Missing required arguments for this function"    
     
-    # Remove non-alphabetic characters, cracking only uses letters
+    # Remove non-alpha chars
     cypher_text = cypher_text.upper()
     cypher_text = re.sub(r'[^A-Z\s]', '', cypher_text)
     
     frequencies = get_english_frequencies()
     cipher_frequencies = {char: cypher_text.count(char) / len(cypher_text) for char in ALPHABET}
     
-    # Frequency analysis letters to build a starting point for the mapping
+    # Initial freq analysis to generate base map
     sorted_english = sorted(frequencies.keys(), key=lambda x: frequencies[x], reverse=True)
     sorted_cipher = sorted(cipher_frequencies.keys(), key=lambda x: cipher_frequencies[x], reverse=True)
     
-    # Create a mapping between the cipher letter and the estimated English letter
+    # Create a mapping between the cipher letter and guessed letter
     mapping = get_empty()
     for cipher_letter, english_letter in zip(sorted_cipher, sorted_english):
         mapping[cipher_letter] = english_letter
 
-    # Randomly swap letters in the mapping, gradually improving the 'fitness' of the mapping
+    # Apply hill climb refinement
     hill_climbed_map = hill_climb(mapping, cypher_text)    
 
     print("Key:", mapping_to_key(hill_climbed_map))
@@ -127,13 +126,13 @@ def apply_mapping_to_text(cypher_text, mapping, separator="*"):
 
 
 def mapping_to_key(mapping):
-    """Returns key string based on alphabetical order of 'values' of the mappings"""
+    """Returns key string based on alphabetical order of values of the mappings"""
     keys = sorted(mapping.items(), key=lambda x: x[1])
     return "".join(key[0] for key in keys)   
 
 
 def get_empty():
-    """Returns an empty mapping - with all letters of the alphabet"""
+    """Returns an empty mapping"""
     return {
         'A': None,
         'B': None,
@@ -163,9 +162,9 @@ def get_empty():
         'Z': None
         }    
 
-### Hill Climb to find local maxima ###
 
 def hill_climb(mapping, cypher_text):
+    """Hill climb algorithm to refine key and find mapping"""
     best = mapping
     # Gets fitness score
     best_fitness = get_english_score(apply_mapping_to_text(cypher_text, best))
@@ -183,7 +182,7 @@ def hill_climb(mapping, cypher_text):
     return best
 
 def swap_randomly(mapping):
-    # Generates two random keys
+    """Makes random swap to map for hillclimb"""
     key1 = random.randrange(0, len(ALPHABET))
     key2 = random.randrange(0, len(ALPHABET))
     while key1 == key2:
