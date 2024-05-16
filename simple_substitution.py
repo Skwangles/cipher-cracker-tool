@@ -104,8 +104,10 @@ def crack(cypher_text):
     # Apply hill climb refinement
     hill_climbed_map = hill_climb(mapping, cypher_text)    
 
+
     print("Key:", mapping_to_key(hill_climbed_map))
-    return apply_mapping_to_text(cypher_text, hill_climbed_map)
+
+    return apply_mapping_to_text(cypher_text, hill_climbed_map), mapping_to_key(hill_climbed_map)
 
 
 ### Formatting/Utils ###
