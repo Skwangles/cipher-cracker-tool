@@ -1,4 +1,13 @@
-# JAMB - Group Project
+# Group Project - Encrypter, Decrypter and Cracker Tool
+## Ciphers implemented
+
+- Caesar cypher - Smart crack;
+- Simple Substitution - Quadgram Hill climb and frequency analysis;
+- Vigenere cypher - Period analysis;
+- Feistel cypher (No Crack);
+- Massey-Omura;
+- R.S.A. - FactorDB, Fermat's Factorization, and Brute force from primes saved in txt file;
+- ElGamal 
 
 ## How to use
 
@@ -20,7 +29,7 @@ cipher:
                         Cipher types - rsa, caesar, simple, feistel
     caesar              Caesar Cipher
     rsa                 RSA Cipher
-    elgamal             RSA Cipher
+    elgamal             El Gamal Cryptosystem
     massey              Massey-Omura cryptosystem
     simple              Simple Substitution Cipher
     feistel             Feistel Cipher
@@ -57,12 +66,3 @@ Massey Omura Cipher example:
 El Gamal Cipher example:  
 `python main.py  --encrypt elgamal -t 42 -k 1343 -y 1828 -a 30 -p 13757`
 
-## Ciphers implemented
-
-- Caesar cypher - Smart crack;
-- Simple Substitution - Quadgram Hill climb and frequency analysis;
-- Vigenere cypher - Period analysis;
-- Feistel cypher (No Crack);
-- Massey-Omura;
-- R.S.A. - FactorDB, Fermat's Factorization, and Brute force from primes saved in txt file;
-- ElGamal 
